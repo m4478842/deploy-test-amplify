@@ -1,3 +1,4 @@
+// 登录登出相关
 import { axios } from '@/utils/request'
 
 /**
@@ -6,7 +7,7 @@ import { axios } from '@/utils/request'
  */
 export function login(parameter) {
   return axios({
-    url: '/sys/login',
+    url: '/login',
     method: 'post',
     data: parameter
   })

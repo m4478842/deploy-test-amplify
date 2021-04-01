@@ -80,12 +80,13 @@
           if (!err) {
             loginParams.email = values.username
             loginParams.password = values.password
-            that.Login(loginParams).then((res) => {
-              this.loginSuccess(res)
-              this.$router.push('/')
-            }).catch((err) => {
-              that.requestFailed(err)
-            });
+            this.$router.push('/')
+            // that.Login(loginParams).then((res) => {
+            //   this.loginSuccess(res)
+            //   this.$router.push('/')
+            // }).catch((err) => {
+            //   that.requestFailed(err)
+            // });
           }else {
             that.loginBtn = false
           }

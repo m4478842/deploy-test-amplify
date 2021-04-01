@@ -4,15 +4,15 @@
       <div class="logo" />
       <a-menu theme="dark" mode="inline" :default-selected-keys="['1']">
         <a-menu-item key="1">
-          <a-icon type="user" />
+          <a-icon type="appstore" />
           <span>通用配置</span>
         </a-menu-item>
         <a-menu-item key="2">
-          <a-icon type="video-camera" />
+          <a-icon type="control" />
           <span>特例配置</span>
         </a-menu-item>
         <a-menu-item key="3">
-          <a-icon type="upload" />
+          <a-icon type="funnel-plot" />
           <span>汇率深度</span>
         </a-menu-item>
       </a-menu>
@@ -26,20 +26,24 @@
             @click="() => (collapsed = !collapsed)"
           />
           <div class="header-right">
-            <span>张三</span>
+            <User></User>
           </div>
         </div>
       </a-layout-header>
       <a-layout-content
         :style="{ margin: '24px 16px', padding: '24px', background: '#fff', minHeight: '280px' }"
       >
-        Content
+        <router-view/>
       </a-layout-content>
     </a-layout>
   </a-layout>
 </template>
 <script>
+import User from '../userInfo/index'
 export default {
+  components: {
+    User
+  },
   data() {
     return {
       collapsed: false,

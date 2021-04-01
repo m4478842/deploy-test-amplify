@@ -9,6 +9,7 @@ import 'ant-design-vue/dist/antd.css'
 import '@/permission'
 
 Vue.config.productionTip = false
+Vue.prototype.$config = config
 Vue.use(Antd)
 Vue.use(Storage, config.storageOptions)
 new Vue({

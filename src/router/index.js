@@ -22,6 +22,9 @@ const routes = [
   {
     path: '/login',
     name: 'Login',
+    meta: {
+      title: '用户登录'
+    },
     component: () => import('@/views/login/index')
   }
 ]
