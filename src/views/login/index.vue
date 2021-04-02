@@ -30,7 +30,7 @@
             class="login-button"
             :loading="loginBtn"
             @click.stop.prevent="handleSubmit"
-            :disabled="loginBtn">确定
+            :disabled="loginBtn">登录
           </a-button>
         </a-form-item>
       </a-form>
@@ -133,6 +133,11 @@
     padding: 40px 70px;
     border-radius: 20px;
     background: #fff;
+    transition: all 1s;
+    &:hover{
+      transition: all 1s;
+      box-shadow: 0px 0px 10px 0px #cccccc;
+    }
     .title{
       text-align: center;
       font-size: 18px;
