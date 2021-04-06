@@ -7,7 +7,7 @@ import { axios } from '@/utils/request'
  */
 export function login(parameter) {
   return axios({
-    url: '/login',
+    url: '/public/login',
     method: 'post',
     data: parameter
   })

@@ -44,7 +44,6 @@
   import { timeFix } from "@/utils/util"
   import Vue from 'vue'
   import { ACCESS_TOKEN } from "@/store/mutation-types"
-
   export default {
     data () {
       return {
@@ -80,13 +79,14 @@
           if (!err) {
             loginParams.email = values.username
             loginParams.password = values.password
-            this.$router.push('/')
-            // that.Login(loginParams).then((res) => {
-            //   this.loginSuccess(res)
-            //   this.$router.push('/')
-            // }).catch((err) => {
-            //   that.requestFailed(err)
-            // });
+            that.Login(loginParams).then((res) => {
+              if (res.code==='200') {
+                this.loginSuccess(res)
+                this.$router.push('/')
+              }
+            }).catch((err) => {
+              that.requestFailed(err)
+            });
           }else {
             that.loginBtn = false
           }

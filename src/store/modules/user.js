@@ -36,16 +36,18 @@ const user = {
   },
   actions: {
     // 登录
-    Login({ commit }, userInfo) {
+    Login({ commit }, loginParams) {
       return new Promise((resolve, reject) => {
-        login(userInfo).then(response => {
+        login(loginParams).then(response => {
+          console.log(response)
           if(response.code =='200'){
             const result = response.data
             const userInfo = result
-            Vue.ls.set(ACCESS_TOKEN, result.token, 7 * 24 * 60 * 60 * 1000)
-            Vue.ls.set(USER_NAME, userInfo.name, 7 * 24 * 60 * 60 * 1000)
+            const token = this.$cookies.get('WEBSSO')
+            console.log(this.$cookies.get('WEBSSO'))
+            Vue.ls.set(ACCESS_TOKEN, token, 7 * 24 * 60 * 60 * 1000)
             Vue.ls.set(USER_INFO, userInfo, 7 * 24 * 60 * 60 * 1000)
-            commit('SET_TOKEN', result.token)
+            commit('SET_TOKEN', token)
             commit('SET_NAME', { username: userInfo.name, welcome: welcome() })
             commit('SET_INFO', userInfo)
             resolve(response)

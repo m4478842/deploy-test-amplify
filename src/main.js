@@ -7,11 +7,16 @@ import Antd from 'ant-design-vue'
 import config from '@/defaultSetting'
 import 'ant-design-vue/dist/antd.css'
 import '@/permission'
+import VueCookies from 'vue-cookies'
 
 Vue.config.productionTip = false
 Vue.prototype.$config = config
+Vue.prototype.$cookies = VueCookies
+
 Vue.use(Antd)
 Vue.use(Storage, config.storageOptions)
+Vue.use(VueCookies)
+
 new Vue({
   router,
   store,
