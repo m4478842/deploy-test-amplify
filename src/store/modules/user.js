@@ -3,6 +3,7 @@ import { login, logout } from "@/api/login"
 import { ACCESS_TOKEN, USER_NAME,USER_INFO,USER_AUTH,SYS_BUTTON_AUTH } from "@/store/mutation-types"
 import { welcome } from "@/utils/util"
 import { queryPermissionsByUser } from '@/api/api'
+import VueCookies from 'vue-cookies'
 
 const user = {
   state: {
@@ -39,12 +40,11 @@ const user = {
     Login({ commit }, loginParams) {
       return new Promise((resolve, reject) => {
         login(loginParams).then(response => {
-          console.log(response)
+          // console.log(response)
           if(response.code =='200'){
             const result = response.data
             const userInfo = result
-            const token = this.$cookies.get('WEBSSO')
-            console.log(this.$cookies.get('WEBSSO'))
+            const token = VueCookies.get('WEBSSO')
             Vue.ls.set(ACCESS_TOKEN, token, 7 * 24 * 60 * 60 * 1000)
             Vue.ls.set(USER_INFO, userInfo, 7 * 24 * 60 * 60 * 1000)
             commit('SET_TOKEN', token)

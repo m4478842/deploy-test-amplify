@@ -15,6 +15,8 @@ router.beforeEach((to, from, next) => {
       notification.warning({ message: '系统提示', description: '当前登录已失效，请重新登录',duration: 4})
       next({path: '/login'})
       NProgress.done()
+    } else {
+      next()
     }
   } else {
     next()

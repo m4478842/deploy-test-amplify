@@ -43,7 +43,7 @@
   import { mapActions } from "vuex"
   import { timeFix } from "@/utils/util"
   import Vue from 'vue'
-  import { ACCESS_TOKEN } from "@/store/mutation-types"
+  import { ACCESS_TOKEN, USER_INFO } from "@/store/mutation-types"
   export default {
     data () {
       return {
@@ -55,9 +55,6 @@
           password:{rules: [{ required: true, message: '请输入密码!',validator: 'click'}]},
         },
       }
-    },
-    created () {
-      Vue.ls.remove(ACCESS_TOKEN)
     },
     methods: {
       ...mapActions([ "Login", "Logout" ]),
@@ -80,9 +77,9 @@
             loginParams.email = values.username
             loginParams.password = values.password
             that.Login(loginParams).then((res) => {
-              if (res.code==='200') {
-                this.loginSuccess(res)
-                this.$router.push('/')
+              if (res.code=='200') {
+                that.loginSuccess(res)
+                that.$router.push('/')
               }
             }).catch((err) => {
               that.requestFailed(err)
@@ -96,6 +93,7 @@
         this.$notification.success({
           message: '欢迎',
           description: `${timeFix()}，欢迎回来`,
+          duration: 4,
         });
       },
       requestFailed (err) {
