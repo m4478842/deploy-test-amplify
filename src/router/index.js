@@ -20,6 +20,20 @@ const routes = [
     ]
   },
   {
+    path: '/specialConfig',
+    name: 'SpecialConfig',
+    component: Layout,
+    children: [
+      {
+        path: '/specialConfig',
+        meta: {
+          title: '特例配置'
+        },
+        component: () => import('@/views/specialConfig/index')
+      }
+    ]
+  },
+  {
     path: '/login',
     name: 'Login',
     meta: {
@@ -28,7 +42,12 @@ const routes = [
     component: () => import('@/views/login/index')
   }
 ]
-
+//获取原型对象上的push函数
+const originalPush = VueRouter.prototype.push
+//修改原型对象中的push方法
+VueRouter.prototype.push = function push(location) {
+  return originalPush.call(this, location).catch(err => err)
+}
 const router = new VueRouter({
   routes
 })

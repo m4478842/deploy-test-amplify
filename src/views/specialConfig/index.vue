@@ -1,6 +1,7 @@
 <template>
   <div>
-    <a-tabs type="card" @change="changeTag">
+    <h1>特例配置</h1>
+    <!-- <a-tabs type="card" @change="changeTag">
       <a-tab-pane key="1" tab="ASIC">
         <div class="table-page-search-wrapper">
           <a-form layout="inline" labelAlign="left">
@@ -15,15 +16,6 @@
                   <a-input v-model="searchForm.enterpriseContacts" placeholder="请输入显示名称"/>
                 </a-form-item>
               </a-col>
-              <!-- <a-col :lg="6" :md="8" :sm="12">
-                <a-form-item label="企业状态">
-                  <a-select style="width: 150px" placeholder="请选择企业状态" v-model="searchForm.status">
-                    <a-select-option value="101101">不正常/未审核</a-select-option>
-                    <a-select-option value="101102">不正常/停用</a-select-option>
-                    <a-select-option value="101111">正常/审核成功</a-select-option>
-                  </a-select>
-                </a-form-item>
-              </a-col> -->
               <a-col :lg="6" :md="8" :sm="12">
                 <span class="table-page-search-submitButtons">
                   <a-button type="primary" @click="handleToSearchEnterprise('1')">查询</a-button>
@@ -79,7 +71,6 @@
         </a-table>
       </a-tab-pane>
     </a-tabs>
-    
     <a-modal
       :title="title"
       :visible="visibleASIC"
@@ -186,9 +177,9 @@
             <td>
               <a-input type='number' placeholder="请输入最大金额" v-model="item.maxTransactionAmount" style="width:200px"></a-input>
             </td>
-            <td style="width:103px">
+            <td>
               <a-button type="dashed" icon="delete" shape="circle" style="margin-right:10px" @click="delCoinType(index)" v-show="coinTypeList.length>1"></a-button>
-              <a-button type="primary" icon="plus" shape="circle" @click="addCoinType" v-show="index===coinTypeList.length-1"></a-button>
+              <a-button type="primary" icon="plus" shape="circle" @click="addCoinType"></a-button>
             </td>
           </tr>
         </table>
@@ -213,9 +204,9 @@
               <a-input type='number' v-model="item.alarmAmount" placeholder="请输入超限金额" style="width:200px"></a-input>
             </td>
             <td><div style="width:200px"></div></td>
-            <td style="width:103px">
+            <td>
               <a-button type="dashed" icon="delete" shape="circle" style="margin-right:10px" @click="delBalance(index)" v-show="balanceAlarmList.length>1"></a-button>
-              <a-button type="primary" icon="plus" shape="circle" @click="addBalance" v-show="index===balanceAlarmList.length-1"></a-button>
+              <a-button type="primary" icon="plus" shape="circle" @click="addBalance"></a-button>
             </td>
           </tr>
         </table>
@@ -296,9 +287,8 @@
               @change="handleChangeBlackImport"
               accept=".xls,.xlsx"
             >
-              <a-button type="primary" class="ml" :loading="blackListUpload">Import</a-button>
+              <a-button type="primary" class="ml" :disabled="!blackListEnabled" :loading="blackListUpload">Import</a-button>
             </a-upload>
-            <!-- <a-button type="primary" class="ml" :disabled="blackListImportEnabled">Import</a-button> -->
             <a-button type="primary" class="ml" @click="blackListDownload('黑名单')">Download</a-button>
           </div>
           <div>
@@ -314,13 +304,13 @@
               @change="handleChangeWhiteImport"
               accept=".xls,.xlsx"
             >
-              <a-button type="primary" class="ml" :loading="whiteListUpload">Import</a-button>
+              <a-button type="primary" class="ml" :disabled="!whiteListEnabled" :loading="whiteListUpload">Import</a-button>
             </a-upload>
             <a-button type="primary" class="ml" @click="whiteListDownload('白名单')">Download</a-button>
           </div>
         </div>
       </div>
-    </a-modal>
+    </a-modal> -->
   </div>
 </template>
 

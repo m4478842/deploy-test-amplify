@@ -1,2 +1,1 @@
-cd /var/www/html
-sudo rm -rf *
+sudo rm -rf /var/www/html/*
