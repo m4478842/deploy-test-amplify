@@ -1,6 +1,6 @@
 <template>
   <div>
-    <a-tabs type="card" @change="callback">
+    <a-tabs type="card" @change="changeTag">
       <a-tab-pane key="1" tab="ASIC">
         <div class="table-page-search-wrapper">
           <a-form layout="inline" labelAlign="left">
@@ -60,8 +60,8 @@
               </a-col>
               <a-col :lg="6" :md="8" :sm="12">
                 <span class="table-page-search-submitButtons">
-                  <a-button type="primary" @click="handleToSearchEnterprise('1')">查询</a-button>
-                  <a-button style="margin-left: 8px" icon="reload" @click="resetSearchEnterprise('1')">重置</a-button>
+                  <a-button type="primary" @click="handleToSearchEnterprise('2')">查询</a-button>
+                  <a-button style="margin-left: 8px" icon="reload" @click="resetSearchEnterprise('2')">重置</a-button>
                 </span>
               </a-col>
             </a-row>
@@ -88,27 +88,23 @@
       @ok="handleOkASIC"
       @cancel="handleCancelASIC"
     >
-      <div class="container">
+      <div class="container" v-if="commonList&&detailInfo">
         <h3>基本设置</h3>
         <a-divider class="no-mg" />
         <a-form class="form-row" labelAlign="left" :form="createForm">
           <a-row :gutter="24">
             <a-col :lg="8" :md="12" :sm="24">
               <a-form-item label="" :labelCol="{lg: {span: 8}, sm: {span: 7}}" :wrapperCol="{lg: {span: 16}, sm: {span: 17} }">
-                <a-checkbox-group v-decorator="['enabled', {rules: [{ required: false, message: '请选择是否生效'}]}]">
-                  <a-checkbox value="Yes">
-                    生效
-                  </a-checkbox>
-                </a-checkbox-group>
+                <a-checkbox v-model="detailInfo.enabled">
+                  生效
+                </a-checkbox>
               </a-form-item>
             </a-col>
             <a-col :lg="8" :md="12" :sm="24">
               <a-form-item label="" :labelCol="{lg: {span: 8}, sm: {span: 7}}" :wrapperCol="{lg: {span: 16}, sm: {span: 17} }">
-                <a-checkbox-group v-decorator="['callbackEnabled', {rules: [{ required: false, message: '请选择是否生效'}]}]">
-                  <a-checkbox value="Yes">
-                    允许通道回调
-                  </a-checkbox>
-                </a-checkbox-group>
+                <a-checkbox v-model="detailInfo.callbackEnabled">
+                  允许通道回调
+                </a-checkbox>
               </a-form-item>
             </a-col>
             <a-col :lg="8" :md="12" :sm="24">
@@ -131,14 +127,8 @@
                   mode="multiple"
                   placeholder="请选择支持国家"
                 >
-                  <a-select-option value="China">
-                    China
-                  </a-select-option>
-                  <a-select-option value="USA">
-                    USA
-                  </a-select-option>
-                  <a-select-option value="India">
-                    India
+                  <a-select-option :value="item" v-for="(item,index) in commonList.countries" :key="index">
+                    {{item}}
                   </a-select-option>
                 </a-select>
               </a-form-item>
@@ -156,11 +146,8 @@
                   ]"
                   placeholder="请选择"
                 >
-                  <a-select-option value="Percent">
-                    Percent
-                  </a-select-option>
-                  <a-select-option value="Fix">
-                    Fix
+                  <a-select-option :value="item" v-for="(item,index) in commonList.commissionFeeTypes" :key="index">
+                    {{item}}
                   </a-select-option>
                 </a-select>
               </a-form-item>
@@ -188,14 +175,8 @@
           <tr v-for="(item,index) in coinTypeList" :key="index">
             <td>
               <a-select placeholder="请选择货币类型" v-model="item.sourceCurrency" style="width:200px">
-                <a-select-option value="IDR">
-                  IDR
-                </a-select-option>
-                <a-select-option value="THB">
-                  THB
-                </a-select-option>
-                <a-select-option value="KRW">
-                  KRW
+                <a-select-option :value="item" v-for="(item,index) in commonList.currencies" :key="index">
+                  {{item}}
                 </a-select-option>
               </a-select>
             </td>
@@ -223,14 +204,8 @@
           <tr v-for="(item,index) in balanceAlarmList" :key="index">
             <td>
               <a-select placeholder="请选择" v-model="item.name" style="width:200px">
-                <a-select-option value="Yellow">
-                  Yellow
-                </a-select-option>
-                <a-select-option value="Orange">
-                  Orange
-                </a-select-option>
-                <a-select-option value="Red">
-                  Red
+                <a-select-option :value="item.name" v-for="(item,index) in commonList.balanceAlarmColors" :key="index">
+                  {{item.name}}
                 </a-select-option>
               </a-select>
             </td>
@@ -255,13 +230,13 @@
           </tr>
           <tr>
             <td>
-              <a-input type='number' placeholder="请输入金额限制" style="width:200px"></a-input>
+              <a-input type='number' v-model="detailInfo.hourCreditedLimit" placeholder="请输入金额限制" style="width:200px"></a-input>
             </td>
             <td>
-              <a-input type='number' placeholder="请输入金额限制" style="width:200px"></a-input>
+              <a-input type='number' v-model="detailInfo.dayCreditedLimit" placeholder="请输入金额限制" style="width:200px"></a-input>
             </td>
             <td>
-              <a-input type='number' placeholder="请输入金额限制" style="width:200px"></a-input>
+              <a-input type='number' v-model="detailInfo.transactionCreditedLimit" placeholder="请输入金额限制" style="width:200px"></a-input>
             </td>
             <td><div style="width:80px"></div></td>
           </tr>
@@ -273,13 +248,13 @@
           </tr>
           <tr>
             <td>
-              <a-input type='number' placeholder="请输入金额限制" style="width:200px"></a-input>
+              <a-input type='number' v-model="detailInfo.hourCreditedLimitUser" placeholder="请输入金额限制" style="width:200px"></a-input>
             </td>
             <td>
-              <a-input type='number' placeholder="请输入金额限制" style="width:200px"></a-input>
+              <a-input type='number' v-model="detailInfo.dayCreditedLimitUser" placeholder="请输入金额限制" style="width:200px"></a-input>
             </td>
             <td>
-              <a-input type='number' placeholder="请输入金额限制" style="width:200px"></a-input>
+              <a-input type='number' v-model="detailInfo.transactionCreditedLimitUser" placeholder="请输入金额限制" style="width:200px"></a-input>
             </td>
             <td><div style="width:80px"></div></td>
           </tr>
@@ -295,13 +270,13 @@
           </tr>
           <tr>
             <td>
-              <a-input type='number' placeholder="请输入超限分数" style="width:200px"></a-input>
+              <a-input type='number' v-model="detailInfo.overBalanceScore" placeholder="请输入超限分数" style="width:200px"></a-input>
             </td>
             <td>
-              <a-input type='number' placeholder="请输入手续费分数" style="width:200px"></a-input>
+              <a-input type='number' v-model="detailInfo.commissionFeeScore" placeholder="请输入手续费分数" style="width:200px"></a-input>
             </td>
             <td>
-              <a-input type='number' placeholder="请输入体验分数" style="width:200px"></a-input>
+              <a-input type='number' v-model="detailInfo.userExperienceScore" placeholder="请输入体验分数" style="width:200px"></a-input>
             </td>
             <td><div style="width:80px"></div></td>
           </tr>
@@ -309,7 +284,7 @@
         <a-divider class="no-mg" />
         <div class="operation-footer">
           <div>
-            <a-checkbox>
+            <a-checkbox v-model="blackListEnabled">
               Blacklist Enabled
             </a-checkbox>
             <a-upload
@@ -319,15 +294,15 @@
               :headers="headers"
               :data="uploadBlackParams"
               @change="handleChangeBlackImport"
-              accept=".csv"
+              accept=".xls,.xlsx"
             >
-              <a-button type="primary" class="ml">Import</a-button>
+              <a-button type="primary" class="ml" :disabled="!blackListEnabled" :loading="blackListUpload">Import</a-button>
             </a-upload>
             <!-- <a-button type="primary" class="ml" :disabled="blackListImportEnabled">Import</a-button> -->
-            <a-button type="primary" class="ml" :disabled="blackListDownEnabled">Download</a-button>
+            <a-button type="primary" class="ml">Download</a-button>
           </div>
           <div>
-            <a-checkbox>
+            <a-checkbox v-model="whiteListEnabled">
               Whitelist Enabled
             </a-checkbox>
             <a-upload
@@ -337,12 +312,11 @@
               :headers="headers"
               :data="uploadWhiteParams"
               @change="handleChangeWhiteImport"
-              accept=".csv"
+              accept=".xls,.xlsx"
             >
-              <a-button type="primary" class="ml">Import</a-button>
+              <a-button type="primary" class="ml" :disabled="!whiteListEnabled" :loading="whiteListUpload">Import</a-button>
             </a-upload>
-            <!-- <a-button type="primary" class="ml" :disabled="whiteListImportEnabled">Import</a-button> -->
-            <a-button type="primary" class="ml" :disabled="whiteListDownEnabled">Download</a-button>
+            <a-button type="primary" class="ml">Download</a-button>
           </div>
         </div>
       </div>
@@ -354,7 +328,9 @@
 import STable from '@/components/table/';
 import {
   paymentList,
-  getPaymentCommons
+  getPaymentCommons,
+  paymentListDetail,
+  paymentListUpdate
 } from '@/api/api'
 export default {
   data() {
@@ -484,81 +460,11 @@ export default {
         orderByName: undefined,
         orderByDirection: undefined,
       },
-      loadASICList: [
-        {
-          "id": 1,
-          "name": "Zota-IDR",
-          "showName": "Zota Pay",
-          "enabled": "YES", // NO means disabled,
-          "callbackEnabled": "YES",
-          "regulator": "ASIC", // ASIC,St.vencent,Cyprus
-          "balance": 25600,
-          "rankScore": 17,
-          "supportCurrencies": "CNY,USD,IDR",
-          "supportCountries": "China,Indonesia,Indonesia",
-          "commissionFee": "0.015",
-          "commissionFeeType": "Percent",
-          "icon": "icon url",
-          "blackListType": "Black",
-          "created": "2021-03-11 12:00:00"
-        },
-        {
-          "id": 2,
-          "name": "Zota-THB",
-          "showName": "Zota Pay",
-          "enabled": "YES", // NO means disabled,
-          "callbackEnabled": "YES",
-          "regulator": "ASIC", // ASIC,St.vencent,Cyprus
-          "balance": 28600,
-          "rankScore": 16,
-          "supportCurrencies": "CNY,USD,IDR",
-          "supportCountries": "China,Indonesia,Indonesia",
-          "commissionFee": "0.010",
-          "commissionFeeType": "Percent",
-          "icon": "icon url",
-          "blackListType": "Black",
-          "created": "2021-03-11 12:00:00"
-        },
-      ],
-      loadSTVList: [
-        {
-          "id": 1,
-          "name": "Zota-IDR",
-          "showName": "Zota Pay",
-          "enabled": "YES", // NO means disabled,
-          "callbackEnabled": "YES",
-          "regulator": "ASIC", // ASIC,St.vencent,Cyprus
-          "balance": 25600,
-          "rankScore": 17,
-          "supportCurrencies": "CNY,USD,IDR",
-          "supportCountries": "China,Indonesia,Indonesia",
-          "commissionFee": "0.015",
-          "commissionFeeType": "Percent",
-          "icon": "icon url",
-          "blackListType": "Black",
-          "created": "2021-03-11 12:00:00"
-        },
-        {
-          "id": 2,
-          "name": "Zota-THB",
-          "showName": "Zota Pay",
-          "enabled": "YES", // NO means disabled,
-          "callbackEnabled": "YES",
-          "regulator": "ASIC", // ASIC,St.vencent,Cyprus
-          "balance": 28600,
-          "rankScore": 16,
-          "supportCurrencies": "CNY,USD,IDR",
-          "supportCountries": "China,Indonesia,Indonesia",
-          "commissionFee": "0.010",
-          "commissionFeeType": "Percent",
-          "icon": "icon url",
-          "blackListType": "Black",
-          "created": "2021-03-11 12:00:00"
-        },
-      ],
+      loadASICList: [],
+      loadSTVList: [],
       title: 'Zota-IDR',
       record: null,
-      visibleASIC: true,
+      visibleASIC: false,
       confirmLoadingASIC: false,
       createForm: this.$form.createForm(this),
       coinTypeList: [
@@ -584,55 +490,69 @@ export default {
           alarmAmount: 2000
         },
         {
-          name: 'Red',
-          alarmAmount: 2000
-        },
-        {
           name: 'Orange',
           alarmAmount: 2000
         },
       ],
+      blackListEnabled: true,
+      whiteListEnabled: true,
       blackListImportEnabled: true,
       blackListDownEnabled: true,
-      whiteListImportEnabled: true,
-      whiteListDownEnabled: true,
+      blackListUpload: false,
+      whiteListUpload: false,
       headers: {
         authorization: 'authorization-text',
       },
       uploadBlackParams: {
-        blackListType: 'Black'
+        blackListType: 'Black',
+        paymentGatewayId: ''
       },
       uploadWhiteParams: {
-        blackListType: 'White'
+        blackListType: 'White',
+        paymentGatewayId: ''
       },
+      commonList: null,
+      detailInfo: null,
+      currentTag: '1'
     };
   },
   // components: {
   //   STable,
   // },
   created () {
-    // this.getCommons()
+    this.changeTag('1')
+    this.getCommons()
   },
   methods: {
     // 上传文件
     handleChangeBlackImport(info) {
-      if (info.file.status !== 'uploading') {
-        console.log(info.file, info.fileList);
+      if (info.fileList.length>1) {
+        info.fileList.shift()
+      }
+      if (info.file.status === 'uploading') {
+        this.blackListUpload = true
       }
       if (info.file.status === 'done') {
         this.$message.success(`${info.file.name} file uploaded successfully`);
+        this.blackListUpload = false
       } else if (info.file.status === 'error') {
         this.$message.error(`${info.file.name} file upload failed.`);
+        this.blackListUpload = false
       }
     },
     handleChangeWhiteImport(info) {
-      if (info.file.status !== 'uploading') {
-        console.log(info.file, info.fileList);
+      if (info.fileList.length>1) {
+        info.fileList.shift()
+      }
+      if (info.file.status === 'uploading') {
+        this.whiteListUpload = true
       }
       if (info.file.status === 'done') {
         this.$message.success(`${info.file.name} file uploaded successfully`);
+        this.whiteListUpload = false
       } else if (info.file.status === 'error') {
         this.$message.error(`${info.file.name} file upload failed.`);
+        this.whiteListUpload = false
       }
     },
     // 新增通道金额超限设置
@@ -658,22 +578,35 @@ export default {
     delCoinType (index) {
       this.coinTypeList.splice(index, 1)
     },
-    // 获取国家、汇率、手续费类型、黑白名单类型、启用美剧、余额报警颜色
+    // 获取国家、汇率、手续费类型、黑白名单类型、启用枚举、余额报警颜色
     getCommons () {
       getPaymentCommons().then(res => {
-        console.log(res)
+        if (res.code===200) {
+          this.commonList = res.data
+        } else {
+          this.$message.error(res.msg)
+        }
       })
     },
     // 切换tag
-    callback(key) {
-      console.log(key);
+    changeTag(key) {
+      this.currentTag = key
+      if (key == '1') {
+        this.searchForm.regulator = 'ASIC'
+        this.getASICData(this.searchForm)
+      } else {
+        this.searchForm.regulator = 'STV'
+        this.getASICData(this.searchForm)
+      }
     },
     // 查询
     handleToSearchEnterprise (type) {
       if (type == '1') {
-        this.$refs.ASICTable.refresh(true)
+        this.searchForm.regulator = 'ASIC'
+        this.getASICData(this.searchForm)
       } else {
-        console.log(2)
+        this.searchForm.regulator = 'STV'
+        this.getASICData(this.searchForm)
       }
     },
     // 重置
@@ -690,27 +623,92 @@ export default {
       }
     },
     // 加载数据
-    getASICData() {
-      paymentList().then(res => {
-        console.log(res)
+    getASICData(params) {
+      paymentList(params).then(res => {
+        console.log('data',res)
+        if (res.code===200 && this.currentTag==='1') {
+          this.loadASICList = res.data
+        } else if (res.code===200 && this.currentTag==='2') {
+          this.loadSTVList = res.data
+        } else {
+          this.$message.error(res.msg)
+        }
+      })
+    },
+    // 获取详情
+    getDetail (params) {
+      paymentListDetail(params).then(res => {
+        console.log('detail',res)
+        if (res.code === 200) {
+          this.detailInfo = res.data
+          this.detailInfo.enabled = this.detailInfo.enabled === "YES" ? true : false
+          this.detailInfo.callbackEnabled = this.detailInfo.callbackEnabled === "YES" ? true : false
+          this.detailInfo.commissionFee = this.detailInfo.commissionFeeType === 'Percent' ? this.detailInfo.commissionFee*100 : this.detailInfo.commissionFee
+          this.coinTypeList = this.detailInfo.depositCurrencyList
+          this.balanceAlarmList = this.detailInfo.balanceAlarmList
+          this.blackListEnabled = this.detailInfo.blackListType === 'Black' ? true : this.detailInfo.blackListType === 'Black,White' ? true : false
+          this.whiteListEnabled = this.detailInfo.blackListType === 'White' ? true : this.detailInfo.blackListType === 'Black,White' ? true : false
+          setTimeout(() => {
+            this.createForm.setFieldsValue({
+              showName: this.detailInfo.showName,
+              supportCountries: this.detailInfo.supportCountries.split(','),
+              commissionFeeType: this.detailInfo.commissionFeeType,
+              commissionFee: this.detailInfo.commissionFee,
+            })
+          },0)
+        } else {
+          this.$message.error(res.msg)
+        }
       })
     },
     // 通道配置
     dialog (record) {
+      this.uploadBlackParams.paymentGatewayId = record.id
+      this.uploadWhiteParams.paymentGatewayId = record.id
       this.record = record
+      this.getDetail()
       this.title = record.name
       this.visibleASIC = true
     },
+    // 确认更新通道配置
     handleOkASIC () {
-      this.confirmLoadingASIC = true;
-      setTimeout(() => {
-        console.log(this.createForm.getFieldsValue())
-        this.visibleASIC = false;
-        this.confirmLoadingASIC = false;
-      }, 2000);
+      let requestParams = JSON.parse(JSON.stringify(this.detailInfo))
+      if (this.blackListEnabled&&!this.whiteListEnabled) {
+        requestParams.blackListType = 'Black'
+      } else if (!this.blackListEnabled&&this.whiteListEnabled) {
+        requestParams.blackListType = 'White'
+      } else if (this.blackListEnabled&&this.whiteListEnabled) {
+        requestParams.blackListType = 'Black,White'
+      } else {
+        requestParams.blackListType = undefined
+      }
+      requestParams.depositCurrencyList = this.coinTypeList
+      requestParams.balanceAlarmList = this.balanceAlarmList
+      const formParams = this.createForm.getFieldsValue()
+      formParams.supportCountries = formParams.supportCountries.join(',')
+      formParams.commissionFee = formParams.commissionFeeType === 'Percent' ? formParams.commissionFee/100 : formParams.commissionFee
+      requestParams.enabled = requestParams.enabled === true ? "YES" : "NO"
+      requestParams.callbackEnabled = requestParams.callbackEnabled === true ? "YES" : "NO"
+      console.log(Object.assign(requestParams,formParams))
+      this.confirmLoadingASIC = true
+      paymentListUpdate(Object.assign(requestParams,formParams)).then(res => {
+        console.log('update',res)
+        if (res.code === 200) {
+          this.confirmLoadingASIC = false
+          this.$message.success(res.msg)
+          this.changeTag('1')
+          this.changeTag('2')
+          this.handleCancelASIC()
+        } else {
+          this.confirmLoadingASIC = false
+          this.$message.error(res.msg)
+        }
+      })
     },
+    // 取消通用配置更新
     handleCancelASIC () {
-      this.visibleASIC = false;
+      this.confirmLoadingASIC = false
+      this.visibleASIC = false
     },
   },
 };
