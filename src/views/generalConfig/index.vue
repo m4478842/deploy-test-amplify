@@ -463,7 +463,7 @@ export default {
       },
       loadASICList: [],
       loadSTVList: [],
-      title: 'Zota-IDR',
+      title: '',
       record: null,
       visibleASIC: false,
       confirmLoadingASIC: false,
