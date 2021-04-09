@@ -8,12 +8,7 @@
             <a-row :gutter="24">
               <a-col :lg="5" :md="8" :sm="12">
                 <a-form-item label="通道" :labelCol="{lg: {span: 8}, sm: {span: 7}}" :wrapperCol="{lg: {span: 16}, sm: {span: 17} }">
-                  <a-input v-model="searchForm.enterpriseName" placeholder="请输入通道名称"/>
-                </a-form-item>
-              </a-col>
-              <a-col :lg="5" :md="8" :sm="12">
-                <a-form-item label="显示名称" :labelCol="{lg: {span: 8}, sm: {span: 7}}" :wrapperCol="{lg: {span: 16}, sm: {span: 17} }">
-                  <a-input v-model="searchForm.enterpriseContacts" placeholder="请输入显示名称"/>
+                  <a-input v-model="searchForm.name" placeholder="请输入通道名称"/>
                 </a-form-item>
               </a-col>
               <a-col :lg="6" :md="8" :sm="12">
@@ -31,6 +26,7 @@
           :rowKey="(record) => record.id"
           :columns="ASICColumns"
           :data-source="loadASICList"
+          :loading="tableLoading"
           bordered
         >
           <a slot="name" slot-scope="text, record" @click="dialog(record)">{{record.name}}</a>
@@ -42,12 +38,7 @@
             <a-row :gutter="24">
               <a-col :lg="5" :md="8" :sm="12">
                 <a-form-item label="Channel" :labelCol="{lg: {span: 8}, sm: {span: 7}}" :wrapperCol="{lg: {span: 16}, sm: {span: 17} }">
-                  <a-input v-model="searchForm.enterpriseName" placeholder="Channel"/>
-                </a-form-item>
-              </a-col>
-              <a-col :lg="5" :md="8" :sm="12">
-                <a-form-item label="DisplayName" :labelCol="{lg: {span: 10}, sm: {span: 7}}" :wrapperCol="{lg: {span: 14}, sm: {span: 17} }">
-                  <a-input v-model="searchForm.enterpriseContacts" placeholder="Display Name"/>
+                  <a-input v-model="searchForm.name" placeholder="Channel"/>
                 </a-form-item>
               </a-col>
               <a-col :lg="6" :md="8" :sm="12">
@@ -66,11 +57,13 @@
           :columns="STVColumns"
           :data-source="loadSTVList"
           bordered
+          :loading="tableLoading"
         >
           <a slot="name" slot-scope="text, record" @click="dialog(record)">{{record.name}}</a>
         </a-table>
       </a-tab-pane>
     </a-tabs>
+    
     <a-modal
       :title="title"
       :visible="visibleASIC"
@@ -177,9 +170,9 @@
             <td>
               <a-input type='number' placeholder="请输入最大金额" v-model="item.maxTransactionAmount" style="width:200px"></a-input>
             </td>
-            <td>
+            <td style="width:103px">
               <a-button type="dashed" icon="delete" shape="circle" style="margin-right:10px" @click="delCoinType(index)" v-show="coinTypeList.length>1"></a-button>
-              <a-button type="primary" icon="plus" shape="circle" @click="addCoinType"></a-button>
+              <a-button type="primary" icon="plus" shape="circle" @click="addCoinType" v-show="index===coinTypeList.length-1"></a-button>
             </td>
           </tr>
         </table>
@@ -204,9 +197,9 @@
               <a-input type='number' v-model="item.alarmAmount" placeholder="请输入超限金额" style="width:200px"></a-input>
             </td>
             <td><div style="width:200px"></div></td>
-            <td>
+            <td style="width:103px">
               <a-button type="dashed" icon="delete" shape="circle" style="margin-right:10px" @click="delBalance(index)" v-show="balanceAlarmList.length>1"></a-button>
-              <a-button type="primary" icon="plus" shape="circle" @click="addBalance"></a-button>
+              <a-button type="primary" icon="plus" shape="circle" @click="addBalance" v-show="index===balanceAlarmList.length-1"></a-button>
             </td>
           </tr>
         </table>
@@ -281,13 +274,12 @@
             <a-upload
               name="file"
               :multiple="true"
-              action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
               :headers="headers"
               :data="uploadBlackParams"
-              @change="handleChangeBlackImport"
+              :customRequest="handleChangeBlackImport"
               accept=".xls,.xlsx"
             >
-              <a-button type="primary" class="ml" :disabled="!blackListEnabled" :loading="blackListUpload">Import</a-button>
+              <a-button type="primary" class="ml" :loading="blackListUpload">Import</a-button>
             </a-upload>
             <a-button type="primary" class="ml" @click="blackListDownload('黑名单')">Download</a-button>
           </div>
@@ -298,13 +290,13 @@
             <a-upload
               name="file"
               :multiple="true"
-              action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+              :action="uploadUrl"
               :headers="headers"
               :data="uploadWhiteParams"
               @change="handleChangeWhiteImport"
               accept=".xls,.xlsx"
             >
-              <a-button type="primary" class="ml" :disabled="!whiteListEnabled" :loading="whiteListUpload">Import</a-button>
+              <a-button type="primary" class="ml" :loading="whiteListUpload">Import</a-button>
             </a-upload>
             <a-button type="primary" class="ml" @click="whiteListDownload('白名单')">Download</a-button>
           </div>
@@ -321,7 +313,8 @@ import {
   getPaymentCommons,
   paymentListDetail,
   paymentListUpdate,
-  blacklistDownload
+  blacklistDownload,
+  blacklistImport
 } from '@/api/api'
 export default {
   data() {
@@ -384,7 +377,7 @@ export default {
         {
           title: '黑/白名单',
           align: 'center',
-          dataIndex: 'blackListType',
+          dataIndex: 'blacklistType',
         },
         {
           title: '允许通道回调',
@@ -443,17 +436,16 @@ export default {
         {
           title: 'Filter Condition',
           align: 'center',
-          dataIndex: 'blackListType',
+          dataIndex: 'blacklistType',
         },
       ],
       searchForm: {
         regulator: 'ASIC',
-        orderByName: undefined,
-        orderByDirection: undefined,
+        name: undefined,
       },
       loadASICList: [],
       loadSTVList: [],
-      title: 'Zota-IDR',
+      title: '',
       record: null,
       visibleASIC: false,
       confirmLoadingASIC: false,
@@ -495,17 +487,18 @@ export default {
         authorization: 'authorization-text',
       },
       uploadBlackParams: {
-        blackListType: 'Black',
+        blacklistType: 'Black',
         paymentGatewayId: ''
       },
       uploadWhiteParams: {
-        blackListType: 'White',
+        blacklistType: 'White',
         paymentGatewayId: ''
       },
       uploadUrl: window._CONFIG['domianURL'] + '/admin/payment-gateway/blacklist/import',
       commonList: null,
       detailInfo: null,
-      currentTag: '1'
+      currentTag: '1',
+      tableLoading: false
     };
   },
   // components: {
@@ -522,7 +515,7 @@ export default {
         fileName = "导出文件"
       }
       let param = {
-        blackListType: 'Black',
+        blacklistType: 'Black',
         paymentGatewayId: this.record.id
       };
       blacklistDownload(param).then((data)=>{
@@ -553,7 +546,7 @@ export default {
         fileName = "导出文件"
       }
       let param = {
-        blackListType: 'White',
+        blacklistType: 'White',
         paymentGatewayId: this.record.id
       };
       blacklistDownload(param).then((data)=>{
@@ -580,34 +573,30 @@ export default {
     },
     // 上传文件
     handleChangeBlackImport(info) {
-      if (info.fileList.length>1) {
-        info.fileList.shift()
-      }
-      if (info.file.status === 'uploading') {
-        this.blackListUpload = true
-      }
-      if (info.file.status === 'done') {
-        this.$message.success(`${info.file.name} file uploaded successfully`);
-        this.blackListUpload = false
-      } else if (info.file.status === 'error') {
-        this.$message.error(`${info.file.name} file upload failed.`);
-        this.blackListUpload = false
-      }
+      const formData = new FormData()
+      formData.append('file',info.file,info.file.name)
+      formData.append('blacklistType',this.uploadBlackParams.blacklistType)
+      formData.append('paymentGatewayId',this.record.id)
+      blacklistImport(formData).then(res => {
+        if (res.code === 200) {
+          this.$message.success(res.msg)
+        } else {
+          this.$message.error(res.msg)
+        }
+      })
     },
     handleChangeWhiteImport(info) {
-      if (info.fileList.length>1) {
-        info.fileList.shift()
-      }
-      if (info.file.status === 'uploading') {
-        this.whiteListUpload = true
-      }
-      if (info.file.status === 'done') {
-        this.$message.success(`${info.file.name} file uploaded successfully`);
-        this.whiteListUpload = false
-      } else if (info.file.status === 'error') {
-        this.$message.error(`${info.file.name} file upload failed.`);
-        this.whiteListUpload = false
-      }
+      const formData = new FormData()
+      formData.append('file',info.file,info.file.name)
+      formData.append('blacklistType',this.uploadWhiteParams.blacklistType)
+      formData.append('paymentGatewayId',this.record.id)
+      blacklistImport(formData).then(res => {
+        if (res.code === 200) {
+          this.$message.success(res.msg)
+        } else {
+          this.$message.error(res.msg)
+        }
+      })
     },
     // 新增通道金额超限设置
     addBalance () {
@@ -645,20 +634,22 @@ export default {
     // 切换tag
     changeTag(key) {
       this.currentTag = key
-      if (key == '1') {
+      this.searchForm.name = undefined
+      if (this.currentTag == '1') {
         this.searchForm.regulator = 'ASIC'
-        this.getASICData(this.searchForm)
       } else {
         this.searchForm.regulator = 'STV'
-        this.getASICData(this.searchForm)
       }
+      this.getASICData(this.searchForm)
     },
     // 查询
     handleToSearchEnterprise (type) {
       if (type == '1') {
+        this.currentTag==='1'
         this.searchForm.regulator = 'ASIC'
         this.getASICData(this.searchForm)
       } else {
+        this.currentTag==='2'
         this.searchForm.regulator = 'STV'
         this.getASICData(this.searchForm)
       }
@@ -668,24 +659,25 @@ export default {
       if (type == '1') {
         this.searchForm = {
           regulator: 'ASIC',
-          orderByName: undefined,
-          orderByDirection: undefined,
+          name: undefined,
         },
-        this.handleToSearchEnterprise('1')
+        this.getASICData(this.searchForm)
       } else {
         this.searchForm = {
           regulator: 'STV',
-          orderByName: undefined,
-          orderByDirection: undefined,
+          name: undefined,
         },
-        this.handleToSearchEnterprise('2')
+        this.getASICData(this.searchForm)
       }
     },
     // 加载数据
     getASICData(params) {
+      this.tableLoading = true
       paymentList(params).then(res => {
-        console.log('data',res)
+        this.tableLoading = false
+        console.log(res.code===200, this.currentTag==='1', this.currentTag==='2')
         if (res.code===200 && this.currentTag==='1') {
+          console.log('data',res)
           this.loadASICList = res.data
         } else if (res.code===200 && this.currentTag==='2') {
           this.loadSTVList = res.data
@@ -697,16 +689,15 @@ export default {
     // 获取详情
     getDetail (params) {
       paymentListDetail(params).then(res => {
-        console.log('detail',res)
         if (res.code === 200) {
           this.detailInfo = res.data
-          this.detailInfo.enabled = this.detailInfo.enabled === "YES" ? true : false
-          this.detailInfo.callbackEnabled = this.detailInfo.callbackEnabled === "YES" ? true : false
+          this.detailInfo.enabled = this.detailInfo.enabled === "Yes" ? true : false
+          this.detailInfo.callbackEnabled = this.detailInfo.callbackEnabled === "Yes" ? true : false
           this.detailInfo.commissionFee = this.detailInfo.commissionFeeType === 'Percent' ? this.detailInfo.commissionFee*100 + '' : this.detailInfo.commissionFee + ''
           this.coinTypeList = this.detailInfo.depositCurrencyList
           this.balanceAlarmList = this.detailInfo.balanceAlarmList
-          this.blackListEnabled = this.detailInfo.blackListType === 'Black' ? true : this.detailInfo.blackListType === 'Black,White' ? true : false
-          this.whiteListEnabled = this.detailInfo.blackListType === 'White' ? true : this.detailInfo.blackListType === 'Black,White' ? true : false
+          this.blackListEnabled = this.detailInfo.blacklistType === 'Black' ? true : this.detailInfo.blacklistType === 'Black,White' ? true : false
+          this.whiteListEnabled = this.detailInfo.blacklistType === 'White' ? true : this.detailInfo.blacklistType === 'Black,White' ? true : false
           setTimeout(() => {
             this.createForm.setFieldsValue({
               showName: this.detailInfo.showName,
@@ -725,7 +716,7 @@ export default {
       this.uploadBlackParams.paymentGatewayId = record.id
       this.uploadWhiteParams.paymentGatewayId = record.id
       this.record = record
-      this.getDetail()
+      this.getDetail(record.id)
       this.title = record.name
       this.visibleASIC = true
     },
@@ -752,32 +743,31 @@ export default {
       }
       let requestParams = JSON.parse(JSON.stringify(this.detailInfo))
       if (this.blackListEnabled&&!this.whiteListEnabled) {
-        requestParams.blackListType = 'Black'
+        requestParams.blacklistType = 'Black'
       } else if (!this.blackListEnabled&&this.whiteListEnabled) {
-        requestParams.blackListType = 'White'
+        requestParams.blacklistType = 'White'
       } else if (this.blackListEnabled&&this.whiteListEnabled) {
-        requestParams.blackListType = 'Black,White'
+        requestParams.blacklistType = 'Black,White'
       } else {
-        requestParams.blackListType = undefined
+        requestParams.blacklistType = undefined
       }
       requestParams.depositCurrencyList = this.coinTypeList
       requestParams.balanceAlarmList = this.balanceAlarmList
       const formParams = this.createForm.getFieldsValue()
       formParams.supportCountries = formParams.supportCountries.join(',')
       formParams.commissionFee = formParams.commissionFeeType === 'Percent' ? formParams.commissionFee/100 : formParams.commissionFee
-      requestParams.enabled = requestParams.enabled === true ? "YES" : "NO"
-      requestParams.callbackEnabled = requestParams.callbackEnabled === true ? "YES" : "NO"
+      requestParams.enabled = requestParams.enabled === true ? "Yes" : "No"
+      requestParams.callbackEnabled = requestParams.callbackEnabled === true ? "Yes" : "No"
       console.log(Object.assign(requestParams,formParams))
       this.createForm.validateFields((err, values) => {
         if (!err) {
           this.confirmLoadingASIC = true
           paymentListUpdate(Object.assign(requestParams,formParams)).then(res => {
-            console.log('update',res)
             if (res.code === 200) {
               this.confirmLoadingASIC = false
               this.$message.success(res.msg)
-              this.changeTag('1')
-              this.changeTag('2')
+              this.getASICData({regulator: 'ASIC'})
+              this.getASICData({regulator: 'STV'})
               this.handleCancelASIC()
             } else {
               this.confirmLoadingASIC = false
