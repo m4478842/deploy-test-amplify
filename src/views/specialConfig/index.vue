@@ -1,6 +1,7 @@
 <template>
   <div>
-    <a-tabs type="card" @change="changeTag">
+    <h1>特例配置</h1>
+    <!-- <a-tabs type="card" @change="changeTag">
       <a-tab-pane key="1" tab="ASIC">
         <div class="table-page-search-wrapper">
           <a-form layout="inline" labelAlign="left">
@@ -280,7 +281,6 @@
             >
               <a-button type="primary" class="ml" :loading="blackListUpload">Import</a-button>
             </a-upload>
-            <!-- <a-button type="primary" class="ml" :disabled="blackListImportEnabled">Import</a-button> -->
             <a-button type="primary" class="ml" @click="blackListDownload('黑名单')">Download</a-button>
           </div>
           <div>
@@ -302,7 +302,7 @@
           </div>
         </div>
       </div>
-    </a-modal>
+    </a-modal> -->
   </div>
 </template>
 

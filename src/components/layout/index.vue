@@ -3,18 +3,18 @@
     <a-layout-sider v-model="collapsed" :trigger="null" collapsible>
       <div class="logo" />
       <a-menu theme="dark" mode="inline" :default-selected-keys="['1']">
-        <a-menu-item key="1">
+        <a-menu-item key="1" @click="hrefTo('/')">
           <a-icon type="appstore" />
           <span>通用配置</span>
         </a-menu-item>
-        <a-menu-item key="2">
+        <a-menu-item key="2" @click="hrefTo('/specialConfig')">
           <a-icon type="control" />
           <span>特例配置</span>
         </a-menu-item>
-        <a-menu-item key="3">
+        <!-- <a-menu-item key="3">
           <a-icon type="funnel-plot" />
           <span>汇率深度</span>
-        </a-menu-item>
+        </a-menu-item> -->
       </a-menu>
     </a-layout-sider>
     <a-layout>
@@ -49,6 +49,11 @@ export default {
       collapsed: false,
     };
   },
+  methods: {
+    hrefTo (name) {
+      this.$router.push(name)
+    }
+  }
 };
 </script>
 <style lang="less">
