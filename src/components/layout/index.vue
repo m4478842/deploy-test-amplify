@@ -2,12 +2,12 @@
   <a-layout id="components-layout-demo-custom-trigger">
     <a-layout-sider v-model="collapsed" :trigger="null" collapsible>
       <div class="logo" />
-      <a-menu theme="dark" mode="inline" :default-selected-keys="['1']">
-        <a-menu-item key="1" @click="hrefTo('/')">
+      <a-menu theme="dark" mode="inline" :default-selected-keys="defaultSelectKey">
+        <a-menu-item key="/" @click="hrefTo('/')">
           <a-icon type="appstore" />
           <span>通用配置</span>
         </a-menu-item>
-        <a-menu-item key="2" @click="hrefTo('/specialConfig')">
+        <a-menu-item key="/specialConfig" @click="hrefTo('/specialConfig')">
           <a-icon type="control" />
           <span>特例配置</span>
         </a-menu-item>
@@ -47,10 +47,21 @@ export default {
   data() {
     return {
       collapsed: false,
+      defaultSelectKey: ['/']
     };
+  },
+  created () {
+    let initUrl = window.localStorage.getItem('menuUrl')
+    if (!initUrl) {
+      this.hrefTo('/')
+    } else {
+      this.hrefTo(initUrl)
+      this.defaultSelectKey = [initUrl]
+    }
   },
   methods: {
     hrefTo (name) {
+      window.localStorage.setItem('menuUrl', name)
       this.$router.push(name)
     }
   }

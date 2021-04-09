@@ -646,11 +646,41 @@ export default {
       if (type == '1') {
         this.currentTag==='1'
         this.searchForm.regulator = 'ASIC'
-        this.getASICData(this.searchForm)
+        if (this.searchForm.name) {
+          this.tableLoading = true
+          paymentList(this.searchForm).then(res => {
+            this.tableLoading = false
+            if (res.code===200) {
+              this.loadASICList = res.data
+              this.loadASICList = this.loadASICList.filter(value => {
+                return value.name===this.searchForm.name
+              })
+            } else {
+              this.$message.error(res.msg)
+            }
+          })
+        } else {
+          this.getASICData(this.searchForm)
+        }
       } else {
         this.currentTag==='2'
         this.searchForm.regulator = 'STV'
-        this.getASICData(this.searchForm)
+        if (this.searchForm.name) {
+          this.tableLoading = true
+          paymentList(this.searchForm).then(res => {
+            this.tableLoading = false
+            if (res.code===200) {
+              this.loadSTVList = res.data
+              this.loadSTVList = this.loadSTVList.filter(value => {
+                return value.name===this.searchForm.name
+              })
+            } else {
+              this.$message.error(res.msg)
+            }
+          })
+        } else {
+          this.getASICData(this.searchForm)
+        }
       }
     },
     // 重置
@@ -674,9 +704,7 @@ export default {
       this.tableLoading = true
       paymentList(params).then(res => {
         this.tableLoading = false
-        console.log(res.code===200, this.currentTag==='1', this.currentTag==='2')
         if (res.code===200 && this.currentTag==='1') {
-          console.log('data',res)
           this.loadASICList = res.data
         } else if (res.code===200 && this.currentTag==='2') {
           this.loadSTVList = res.data

@@ -29,6 +29,7 @@ export default {
     logout () {
       Vue.ls.remove(ACCESS_TOKEN)
       Vue.ls.remove(USER_INFO)
+      window.localStorage.removeItem('menuUrl')
       this.$cookies.remove('WEBSSO')
       this.$router.push('/login')
     }

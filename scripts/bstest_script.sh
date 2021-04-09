@@ -1,0 +1,1 @@
+sudo python3 /var/www/BSTests/test.py  
