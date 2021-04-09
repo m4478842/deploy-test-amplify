@@ -290,10 +290,9 @@
             <a-upload
               name="file"
               :multiple="true"
-              :action="uploadUrl"
               :headers="headers"
               :data="uploadWhiteParams"
-              @change="handleChangeWhiteImport"
+              :customRequest="handleChangeWhiteImport"
               accept=".xls,.xlsx"
             >
               <a-button type="primary" class="ml" :loading="whiteListUpload">Import</a-button>
