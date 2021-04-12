@@ -31,6 +31,7 @@
           bordered
         >
           <a slot="name" slot-scope="text, record" @click="dialog(record)">{{record.name}}</a>
+          <span slot="balance" slot-scope="text, record" :style="{color: record.color==='Yellow'?'yellow':record.color==='Orange'?'orange':record.color==='Red'?'red':''}">{{record.balance}}</span>
         </a-table>
       </a-tab-pane>
       <a-tab-pane key="2" tab="STV">
@@ -350,6 +351,7 @@ export default {
           title: '通道余额',
           align: 'center',
           dataIndex: 'balance',
+          scopedSlots: { customRender: 'balance' },
         },
         {
           title: '排序分数',
@@ -652,13 +654,13 @@ export default {
       this.getASICData(this.searchForm)
     },
     // 分页查询
-    handleTableChange (pagination,filters,sorter) {
-      console.log(pagination,filters,sorter)
-      this.searchForm.name = undefined
+    handleTableChange (pagination) {
+      this.pagination.current = pagination.current
       this.getASICData(this.searchForm)
     },
     // 查询
     handleToSearchEnterprise (type) {
+      this.pagination.current = 1
       if (type == '1') {
         this.currentTag==='1'
         this.searchForm.regulator = 'ASIC'
@@ -725,6 +727,7 @@ export default {
     getASICData(params) {
       this.tableLoading = true
       paymentList(params).then(res => {
+        console.log(res)
         this.tableLoading = false
         if (res.code===200 && this.currentTag==='1') {
           this.pagination.total = res.data.length

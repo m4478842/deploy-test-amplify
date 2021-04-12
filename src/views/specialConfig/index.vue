@@ -573,7 +573,6 @@ export default {
     // 选择国家
     handleChange(selectedItems) {
       this.selectedItems = selectedItems;
-      console.log(this.selectedItems)
     },
     // 切换tag
     changeTag(key) {
@@ -589,11 +588,11 @@ export default {
     // 分页查询
     handleTableChange (pagination) {
       this.pagination.current = pagination.current
-      this.searchForm.name = undefined
       this.getASICData(this.searchForm)
     },
     // 查询
     handleToSearchEnterprise (type) {
+      this.pagination.current = 1
       if (type == '1') {
         this.currentTag==='1'
         this.searchForm.regulator = 'ASIC'
@@ -706,6 +705,10 @@ export default {
     handleOkASIC () {
       let coinType = true
       let balanceType = true
+      if (this.addEditParams.jsonString.name==='') {
+        this.$message.error('配置名字不能为空')
+        return
+      }
       this.coinTypeList.forEach(item => {
         if (item.paymentGateway.id===undefined || item.extraScore==='') {
           this.$message.error('入金通道中数据不能为空')
@@ -713,16 +716,19 @@ export default {
           return
         }
       })
-      this.balanceAlarmList.forEach(item => {
-        if (item.metaTraderServerType===undefined || item.account==='') {
-          this.$message.error('IB数据不能为空')
-          balanceType = false
-          return
-        }
-      })
-      if (!coinType || !balanceType) {
+      if (!coinType) {
         return
       }
+      // this.balanceAlarmList.forEach(item => {
+      //   if (item.metaTraderServerType===undefined || item.account==='') {
+      //     balanceType = false
+      //   }
+      // })
+      // console.log(this.selectedItems.length===0,this.addEditParams.file===null,balanceType)
+      // if (this.selectedItems.length===0 || this.addEditParams.file===null || balanceType) {
+      //   this.$message.error('国家、用户、服务器类型必须选择一项或多项填入')
+      //   return
+      // }
       let requestParams = JSON.parse(JSON.stringify(this.addEditParams))
       requestParams.jsonString.depositSpecialRankPaymentGateways = this.coinTypeList
       requestParams.jsonString.ibAccounts = this.balanceAlarmList
@@ -730,9 +736,9 @@ export default {
       let formData = new FormData()
       formData.append('file',requestParams.file)
       formData.append('jsonString',requestParams.jsonString)
+      this.confirmLoadingASIC = true
       if (this.isAdd) {
-        this.confirmLoadingASIC = true
-        getSpecialTableListAdd(Object.assign(formData)).then(res => {
+        getSpecialTableListAdd(formData).then(res => {
           if (res.code === 200) {
             this.confirmLoadingASIC = false
             this.$message.success(res.msg)
