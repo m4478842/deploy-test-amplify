@@ -310,7 +310,7 @@ export default {
         ], // 适用IB
         "userAccounts":"153217161517@163.com,123@163.com", // 适用用户email（account）
         "enabled":"Yes", // Yes or No
-        "gatewayDepositSpecialRanks":[{
+        "depositSpecialRankPaymentGateways":[{
           "gateway":{
             "id":1
           },

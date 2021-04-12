@@ -472,7 +472,7 @@ export default {
           countries: '',
           ibAccounts: [],
           enabled: 'Yes',
-          gatewayDepositSpecialRanks: [],
+          depositSpecialRankPaymentGateways: [],
         },
         file: null
       }
@@ -759,7 +759,7 @@ export default {
           countries: '',
           ibAccounts: [],
           enabled: 'Yes',
-          gatewayDepositSpecialRanks: [],
+          depositSpecialRankPaymentGateways: [],
         },
         file: null
       }
