@@ -438,19 +438,29 @@ export default {
         "countries":"China,India", // 适用国家
         "ibAccounts":[
             {
-              "account":"test ib account",
-              "metaTraderServerType":"Mt4"
+              "account":1537,
+              "metaTraderServerType":"MetaTrade 4 Trading Server"
             },
             {
-              "account":"test ib account",
-              "metaTraderServerType":"Mt5"
+              "account":1538,
+              "metaTraderServerType":"MetaTrade 5 Trading Server"
             }
         ], // 适用IB
-        "userAccounts":"153217161517@163.com,123@163.com", // 适用用户email（account）
+        "userAccounts":[
+            {
+              "email":"15321761517@163.com",
+              "metaTraderServerType":"MetaTrade 4 Trading Server"
+            },
+            {
+              "email":"15321761527@163.com",
+              "metaTraderServerType":"MetaTrade 5 Trading Server"
+            }
+        ], // 适用用户email（account）
         "enabled":"Yes", // Yes or No
         "depositSpecialRankPaymentGateways":[{
           "paymentGateway":{
-            "id":1
+            "id":1,
+            "name":"Zota-IDR"
           },
           "extraScore":30, //权重加分
         }]

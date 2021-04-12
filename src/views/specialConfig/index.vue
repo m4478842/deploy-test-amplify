@@ -97,7 +97,7 @@
           </tr>
           <tr>
             <td>
-              <a-input type='text' placeholder="请输入配置名字" style="width:200px"></a-input>
+              <a-input type='text' v-model="addEditParams.jsonString.name" placeholder="请输入配置名字" style="width:200px"></a-input>
             </td>
             <td></td>
             <td></td>
@@ -117,7 +117,7 @@
               </a-select>
             </td>
             <td>
-              <a-input type='number' placeholder="请输入排序分数" style="width:200px"></a-input>
+              <a-input type='number' v-model="item.extraScore" placeholder="请输入排序分数" style="width:200px"></a-input>
             </td>
             <td style="width:103px">
               <a-button type="dashed" icon="delete" shape="circle" style="margin-right:10px" @click="delCoinType(index)" v-show="coinTypeList.length>1"></a-button>
@@ -174,7 +174,7 @@
               </a-select>
             </td>
             <td>
-              <a-input type='number' v-model="item.account" placeholder="请输入IB" style="width:200px"></a-input>
+              <a-input type='text' v-model="item.account" placeholder="请输入IB" style="width:200px"></a-input>
             </td>
             <td style="width:103px">
               <a-button type="dashed" icon="delete" shape="circle" style="margin-right:10px" @click="delBalance(index)" v-show="balanceAlarmList.length>1"></a-button>
@@ -195,7 +195,7 @@
           </tr>
           <tr>
             <td>
-              <a-input type='text' placeholder="请输入配置名字" style="width:200px"></a-input>
+              <a-input type='text' v-model="addEditParams.jsonString.name" placeholder="请输入配置名字" style="width:200px"></a-input>
             </td>
             <td></td>
             <td></td>
@@ -215,7 +215,7 @@
               </a-select>
             </td>
             <td>
-              <a-input type='number' placeholder="请输入排序分数" style="width:200px"></a-input>
+              <a-input type='number' v-model="item.extraScore" placeholder="请输入排序分数" style="width:200px"></a-input>
             </td>
             <td style="width:103px">
               <a-button type="dashed" icon="delete" shape="circle" style="margin-right:10px" @click="delCoinType(index)" v-show="coinTypeList.length>1"></a-button>
@@ -242,7 +242,7 @@
             <td>用户</td>
           </tr>
           <tr>
-            <td class="ssy">
+            <td class="ssy upload-re">
               <a-upload
                 name="file"
                 :multiple="true"
@@ -272,7 +272,7 @@
               </a-select>
             </td>
             <td>
-              <a-input type='number' v-model="item.account" placeholder="请输入IB" style="width:200px"></a-input>
+              <a-input type='text' v-model="item.account" placeholder="请输入IB" style="width:200px"></a-input>
             </td>
             <td style="width:103px">
               <a-button type="dashed" icon="delete" shape="circle" style="margin-right:10px" @click="delBalance(index)" v-show="balanceAlarmList.length>1"></a-button>
@@ -294,7 +294,7 @@ import {
   getSpecialTableListAdd,
   getSpecialTableListDel,
   getSpecialTableListUpdate,
-  blacklistDownload,
+  specialRankDownload,
   blacklistImport
 } from '@/api/api'
 export default {
@@ -437,7 +437,7 @@ export default {
       coinTypeList: [
         {
           paymentGateway: {id: undefined},
-          extraScore: 10,
+          extraScore: '',
         },
       ],
       balanceAlarmList: [
@@ -491,7 +491,7 @@ export default {
     this.getCommons()
   },
   methods: {
-    // 黑名单下载
+    // 下载
     blackListDownload (fileName) {
       if(!fileName || typeof fileName != "string"){
         fileName = "导出文件"
@@ -500,7 +500,7 @@ export default {
         blacklistType: 'Black',
         paymentGatewayId: this.record.id
       };
-      blacklistDownload(param).then((data)=>{
+      specialRankDownload(param).then((data)=>{
         if (!data) {
           this.$message.warning("文件下载失败")
           return
@@ -524,7 +524,7 @@ export default {
     },
     // 上传文件
     handleChangeBlackImport(info) {
-      console.log(info)
+      this.addEditParams.file = info.file
       // const formData = new FormData()
       // formData.append('file',info.file,info.file.name)
       // formData.append('blacklistType',this.uploadBlackParams.blacklistType)
@@ -587,7 +587,7 @@ export default {
       this.getASICData(this.searchForm)
     },
     // 分页查询
-    handleTableChange (pagination,filters,sorter) {
+    handleTableChange (pagination) {
       this.pagination.current = pagination.current
       this.searchForm.name = undefined
       this.getASICData(this.searchForm)
@@ -606,6 +606,8 @@ export default {
               this.loadASICList = this.loadASICList.filter(value => {
                 return value.name===this.searchForm.name
               })
+              this.pagination.total = this.loadASICList.length
+              this.loadASICList = this.loadASICList.slice((this.pagination.current-1)*10)
             } else {
               this.$message.error(res.msg)
             }
@@ -625,6 +627,8 @@ export default {
               this.loadSTVList = this.loadSTVList.filter(value => {
                 return value.name===this.searchForm.name
               })
+              this.pagination.total = this.loadSTVList.length
+              this.loadSTVList = this.loadSTVList.slice((this.pagination.current-1)*10)
             } else {
               this.$message.error(res.msg)
             }
@@ -641,12 +645,14 @@ export default {
           regulator: 'ASIC',
           name: undefined,
         },
+        this.pagination.current = 1
         this.getASICData(this.searchForm)
       } else {
         this.searchForm = {
           regulator: 'STV',
           name: undefined,
         },
+        this.pagination.current = 1
         this.getASICData(this.searchForm)
       }
     },
@@ -654,14 +660,13 @@ export default {
     getASICData(params) {
       this.tableLoading = true
       getSpecialTableList(params).then(res => {
-        console.log(res)
         this.tableLoading = false
         if (res.code===200 && this.currentTag==='1') {
           this.pagination.total = res.data.length
-          this.loadASICList = res.data.slice((this.pagination.current-1)*10,this.pagination.pageSize)
+          this.loadASICList = res.data.slice((this.pagination.current-1)*10)
         } else if (res.code===200 && this.currentTag==='2') {
           this.pagination.total = res.data.length
-          this.loadSTVList = res.data.slice((this.pagination.current-1)*10,this.pagination.pageSize)
+          this.loadSTVList = res.data.slice((this.pagination.current-1)*10)
         } else {
           this.$message.error(res.msg)
         }
@@ -674,6 +679,9 @@ export default {
         if (res.code === 200) {
           this.detailInfo = res.data
           this.addEditParams.jsonString = res.data
+          this.coinTypeList = res.data.depositSpecialRankPaymentGateways
+          this.balanceAlarmList = res.data.ibAccounts
+          this.selectedItems = this.addEditParams.jsonString.countries.split(',')
         } else {
           this.$message.error(res.msg)
         }
@@ -715,13 +723,16 @@ export default {
       if (!coinType || !balanceType) {
         return
       }
-      let requestParams = JSON.parse(JSON.stringify(this.detailInfo))
-      requestParams.depositCurrencyList = this.coinTypeList
-      requestParams.balanceAlarmList = this.balanceAlarmList
-      console.log(Object.assign(requestParams))
+      let requestParams = JSON.parse(JSON.stringify(this.addEditParams))
+      requestParams.jsonString.depositSpecialRankPaymentGateways = this.coinTypeList
+      requestParams.jsonString.ibAccounts = this.balanceAlarmList
+      requestParams.jsonString.countries = this.selectedItems.join(',')
+      let formData = new FormData()
+      formData.append('file',requestParams.file)
+      formData.append('jsonString',requestParams.jsonString)
       if (this.isAdd) {
         this.confirmLoadingASIC = true
-        getSpecialTableListAdd(Object.assign(requestParams)).then(res => {
+        getSpecialTableListAdd(Object.assign(formData)).then(res => {
           if (res.code === 200) {
             this.confirmLoadingASIC = false
             this.$message.success(res.msg)
@@ -734,7 +745,7 @@ export default {
           }
         })
       } else {
-        getSpecialTableListUpdate(Object.assign(requestParams)).then(res => {
+        getSpecialTableListUpdate(Object.assign(formData)).then(res => {
           if (res.code === 200) {
             this.confirmLoadingASIC = false
             this.$message.success(res.msg)
@@ -763,10 +774,45 @@ export default {
         },
         file: null
       }
+      this.coinTypeList = [
+        {
+          paymentGateway: {id: undefined},
+          extraScore: '',
+        },
+      ]
+      this.balanceAlarmList = [
+        {
+          metaTraderServerType: undefined,
+          account: ''
+        }
+      ]
+      this.selectedItems = []
     },
     // 删除
     del (record) {
-      console.log(record)
+    const that = this;
+      this.$confirm({
+        title: `删除`,
+        content: h => <div>确定删除<span style="color:red;">“{record.name}”</span>?</div>,
+        onOk() {
+          return new Promise((resolve, reject) => {
+            getSpecialTableListDel(record.id).then((res) => {
+              if (res.success) {
+                that.$message.success(`“${record.staffName}”已删除`);
+                that.getASICData({regulator: 'ASIC'})
+                that.getASICData({regulator: 'STV'})
+                resolve();
+              } else {
+                that.$message.error(res.message);
+                reject();
+              }
+            })
+          })
+        },
+        onCancel() {
+          console.log('Cancel');
+        },
+      });
     }
   },
 };

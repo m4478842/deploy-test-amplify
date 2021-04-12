@@ -671,6 +671,8 @@ export default {
               this.loadASICList = this.loadASICList.filter(value => {
                 return value.name===this.searchForm.name
               })
+              this.pagination.total = this.loadASICList.length
+              this.loadASICList = this.loadASICList.slice((this.pagination.current-1)*10)
             } else {
               this.$message.error(res.msg)
             }
@@ -690,6 +692,8 @@ export default {
               this.loadSTVList = this.loadSTVList.filter(value => {
                 return value.name===this.searchForm.name
               })
+              this.pagination.total = this.loadSTVList.length
+              this.loadSTVList = this.loadSTVList.slice((this.pagination.current-1)*10)
             } else {
               this.$message.error(res.msg)
             }
@@ -706,12 +710,14 @@ export default {
           regulator: 'ASIC',
           name: undefined,
         },
+        this.pagination.current = 1
         this.getASICData(this.searchForm)
       } else {
         this.searchForm = {
           regulator: 'STV',
           name: undefined,
         },
+        this.pagination.current = 1
         this.getASICData(this.searchForm)
       }
     },
@@ -722,10 +728,10 @@ export default {
         this.tableLoading = false
         if (res.code===200 && this.currentTag==='1') {
           this.pagination.total = res.data.length
-          this.loadASICList = res.data.slice((this.pagination.current-1)*10,this.pagination.pageSize)
+          this.loadASICList = res.data.slice((this.pagination.current-1)*10)
         } else if (res.code===200 && this.currentTag==='2') {
           this.pagination.total = res.data.length
-          this.loadSTVList = res.data.slice((this.pagination.current-1)*10,this.pagination.pageSize)
+          this.loadSTVList = res.data.slice((this.pagination.current-1)*10)
         } else {
           this.$message.error(res.msg)
         }

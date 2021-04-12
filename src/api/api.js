@@ -40,9 +40,19 @@ const getSpecialTableListAdd = (params) => putAction('/admin/payment-gateway/spe
 // 通道例外原则-更新
 const getSpecialTableListUpdate = (params) => postAction('/admin/payment-gateway/special-rank',params);
 // 通道例外原则-删除
-const getSpecialTableListDel = (params) => deletetAction(`/admin/payment-gateway/special-rank/delete`,params);
+const getSpecialTableListDel = (params) => deleteAction(`/admin/payment-gateway/special-rank/delete`,params);
+// 入金通道配置-黑白名单Excel下载
+const specialRankDownload = function downFile(parameter){
+  return axios({
+    url: '/admin/payment-gateway/special-rank/user/download',
+    data: parameter,
+    method: 'post' ,
+    responseType: 'blob'
+  })
+};
 
 export {
+  specialRankDownload,
   getSpecialTableListDel,
   getSpecialTableListUpdate,
   getSpecialTableListAdd,
