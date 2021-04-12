@@ -1,7 +1,7 @@
 <template>
   <div>
-    <h1>特例配置</h1>
-    <!-- <a-tabs type="card" @change="changeTag">
+    <!-- <h1>特例配置</h1> -->
+    <a-tabs type="card" @change="changeTag">
       <a-tab-pane key="1" tab="ASIC">
         <div class="table-page-search-wrapper">
           <a-form layout="inline" labelAlign="left">
@@ -28,6 +28,8 @@
           :columns="ASICColumns"
           :data-source="loadASICList"
           :loading="tableLoading"
+          :pagination="pagination"
+          @change="handleTableChange"
           bordered
         >
           <a slot="name" slot-scope="text, record" @click="dialog(record)">{{record.name}}</a>
@@ -63,6 +65,8 @@
           :data-source="loadSTVList"
           bordered
           :loading="tableLoading"
+          :pagination="pagination"
+          @change="handleTableChange"
         >
           <a slot="name" slot-scope="text, record" @click="dialog(record)">{{record.name}}</a>
           <span slot="action" slot-scope="text, record">
@@ -70,7 +74,7 @@
           </span>
         </a-table>
       </a-tab-pane>
-    </a-tabs> -->
+    </a-tabs>
     <!-- 新增、编辑 -->
     <a-modal
       :title="title"
@@ -106,9 +110,9 @@
           </tr>
           <tr v-for="(item,index) in coinTypeList" :key="index">
             <td>
-              <a-select placeholder="请选择入金通道" style="width:200px">
-                <a-select-option :value="item" v-for="(item,index) in commonList.currencies" :key="index">
-                  {{item}}
+              <a-select v-model="item.paymentGateway.id" placeholder="请选择入金通道" style="width:200px">
+                <a-select-option :value="itemD.id" v-for="(itemD,index) in commonList.paymentGateways" :key="index">
+                  {{itemD.name}}
                 </a-select-option>
               </a-select>
             </td>
@@ -126,8 +130,6 @@
         <table class="tbl" cellpadding='0' cellspacing='0'>
           <tr>
             <td>国家</td>
-            <td>用户</td>
-            <td style="width:380px"></td>
           </tr>
           <tr>
             <td>
@@ -137,7 +139,12 @@
                 </a-select-option>
               </a-select>
             </td>
-            <td class="ssy">
+          </tr>
+          <tr>
+            <td>用户</td>
+          </tr>
+          <tr>
+            <td class="ssy upload-re">
               <a-upload
                 name="file"
                 :multiple="true"
@@ -150,22 +157,29 @@
               </a-upload>
               <a-button type="primary" class="ml" @click="blackListDownload('user')">Download</a-button>
             </td>
-            <td></td>
           </tr>
+          <tr><td>IB</td></tr>
           <tr>
-            <td>IB</td>
+            <td>服务器类型</td>
+            <td>IB号</td>
             <td>操作</td>
-            <td></td>
+            <td style="width:100px"></td>
           </tr>
           <tr v-for="(item,index) in balanceAlarmList" :key="index">
             <td>
-              <a-input type='number' placeholder="请输入IB" style="width:200px"></a-input>
+              <a-select v-model="item.metaTraderServerType" placeholder="请选择服务器类型" style="width:200px">
+                <a-select-option :value="itemD" v-for="(itemD,index) in commonList.metaTraderServerTypes" :key="index">
+                  {{itemD}}
+                </a-select-option>
+              </a-select>
+            </td>
+            <td>
+              <a-input type='number' v-model="item.account" placeholder="请输入IB" style="width:200px"></a-input>
             </td>
             <td style="width:103px">
               <a-button type="dashed" icon="delete" shape="circle" style="margin-right:10px" @click="delBalance(index)" v-show="balanceAlarmList.length>1"></a-button>
               <a-button type="primary" icon="plus" shape="circle" @click="addBalance" v-show="index===balanceAlarmList.length-1"></a-button>
             </td>
-            <td></td>
           </tr>
         </table>
       </div>
@@ -194,9 +208,9 @@
           </tr>
           <tr v-for="(item,index) in coinTypeList" :key="index">
             <td>
-              <a-select placeholder="请选择入金通道" style="width:200px">
-                <a-select-option :value="item" v-for="(item,index) in commonList.currencies" :key="index">
-                  {{item}}
+              <a-select v-model="item.paymentGateway.id" placeholder="请选择入金通道" style="width:200px">
+                <a-select-option :value="itemD.id" v-for="(itemD,index) in commonList.paymentGateways" :key="index">
+                  {{itemD.name}}
                 </a-select-option>
               </a-select>
             </td>
@@ -214,8 +228,6 @@
         <table class="tbl" cellpadding='0' cellspacing='0'>
           <tr>
             <td>国家</td>
-            <td>用户</td>
-            <td style="width:380px"></td>
           </tr>
           <tr>
             <td>
@@ -225,6 +237,11 @@
                 </a-select-option>
               </a-select>
             </td>
+          </tr>
+          <tr>
+            <td>用户</td>
+          </tr>
+          <tr>
             <td class="ssy">
               <a-upload
                 name="file"
@@ -238,22 +255,29 @@
               </a-upload>
               <a-button type="primary" class="ml" @click="blackListDownload('user')">Download</a-button>
             </td>
-            <td></td>
           </tr>
+          <tr><td>IB</td></tr>
           <tr>
-            <td>IB</td>
+            <td>服务器类型</td>
+            <td>IB号</td>
             <td>操作</td>
-            <td></td>
+            <td style="width:100px"></td>
           </tr>
           <tr v-for="(item,index) in balanceAlarmList" :key="index">
             <td>
-              <a-input type='number' placeholder="请输入IB" style="width:200px"></a-input>
+              <a-select v-model="item.metaTraderServerType" placeholder="请选择服务器类型" style="width:200px">
+                <a-select-option :value="itemD" v-for="(itemD,index) in commonList.metaTraderServerTypes" :key="index">
+                  {{itemD}}
+                </a-select-option>
+              </a-select>
+            </td>
+            <td>
+              <a-input type='number' v-model="item.account" placeholder="请输入IB" style="width:200px"></a-input>
             </td>
             <td style="width:103px">
               <a-button type="dashed" icon="delete" shape="circle" style="margin-right:10px" @click="delBalance(index)" v-show="balanceAlarmList.length>1"></a-button>
               <a-button type="primary" icon="plus" shape="circle" @click="addBalance" v-show="index===balanceAlarmList.length-1"></a-button>
             </td>
-            <td></td>
           </tr>
         </table>
       </div>
@@ -264,10 +288,12 @@
 <script>
 import STable from '@/components/table/';
 import {
-  paymentList,
-  getPaymentCommons,
-  paymentListDetail,
-  paymentListUpdate,
+  getSpecialTableList,
+  getSpecialCommon,
+  getSpecialTableListDetail,
+  getSpecialTableListAdd,
+  getSpecialTableListDel,
+  getSpecialTableListUpdate,
   blacklistDownload,
   blacklistImport
 } from '@/api/api'
@@ -291,22 +317,46 @@ export default {
         {
           title: '目标客户',
           align: 'center',
-          dataIndex: 'showName'
+          dataIndex: 'userAccounts',
+          customCell: () => {
+            return {
+              style: cellStyle
+            }
+          },
+          customRender: text => <a-tooltip placement="top" title={text}>{text}</a-tooltip>
         },
         {
           title: '目标IB',
           align: 'center',
-          dataIndex: 'enabled'
+          dataIndex: 'ibAccounts',
+          customCell: () => {
+            return {
+              style: cellStyle
+            }
+          },
+          customRender: text => {
+            let name = ''
+            text.forEach(item=>{
+              name += item.account + ','
+            })
+            return <a-tooltip placement="top" title={name}>{name}</a-tooltip>
+          }
         },
         {
           title: '目标国家',
           align: 'center',
-          dataIndex: 'balance',
+          dataIndex: 'countries',
+          customCell: () => {
+            return {
+              style: cellStyle
+            }
+          },
+          customRender: text => <a-tooltip placement="top" title={text}>{text}</a-tooltip>
         },
         {
           title: '是否生效',
           align: 'center',
-          dataIndex: 'rankScore',
+          dataIndex: 'enabled',
         },
         {
           title: '操作',
@@ -325,22 +375,46 @@ export default {
         {
           title: 'Target Customer',
           align: 'center',
-          dataIndex: 'showName'
+          dataIndex: 'userAccounts',
+          customCell: () => {
+            return {
+              style: cellStyle
+            }
+          },
+          customRender: text => <a-tooltip placement="top" title={text}>{text}</a-tooltip>
         },
         {
           title: 'Target IB',
           align: 'center',
-          dataIndex: 'enabled'
+          dataIndex: 'ibAccounts',
+          customCell: () => {
+            return {
+              style: cellStyle
+            }
+          },
+          customRender: text => {
+            let name = ''
+            text.forEach(item=>{
+              name += item.account + ','
+            })
+            return <a-tooltip placement="top" title={name}>{name}</a-tooltip>
+          }
         },
         {
           title: 'Target Country',
           align: 'center',
-          dataIndex: 'balance',
+          dataIndex: 'countries',
+          customCell: () => {
+            return {
+              style: cellStyle
+            }
+          },
+          customRender: text => <a-tooltip placement="top" title={text}>{text}</a-tooltip>
         },
         {
           title: 'Enabled',
           align: 'center',
-          dataIndex: 'rankScore',
+          dataIndex: 'enabled',
         },
         {
           title: 'operation',
@@ -360,37 +434,19 @@ export default {
       record: null,
       visibleASIC: false,
       confirmLoadingASIC: false,
-      createForm: this.$form.createForm(this),
       coinTypeList: [
         {
-          sourceCurrency: 'IDR',
-          minTransactionAmount: 10,
-          maxTransactionAmount: 100,
+          paymentGateway: {id: undefined},
+          extraScore: 10,
         },
-        {
-          sourceCurrency: 'IDR',
-          minTransactionAmount: 100,
-          maxTransactionAmount: 500,
-        },
-        {
-          sourceCurrency: 'IDR',
-          minTransactionAmount: 500,
-          maxTransactionAmount: 5000,
-        }
       ],
       balanceAlarmList: [
         {
-          name: 'Yellow',
-          alarmAmount: 2000
-        },
-        {
-          name: 'Orange',
-          alarmAmount: 2000
-        },
+          metaTraderServerType: undefined,
+          account: ''
+        }
       ],
       blackListEnabled: true,
-      blackListImportEnabled: true,
-      blackListDownEnabled: true,
       blackListUpload: false,
       headers: {
         authorization: 'authorization-text',
@@ -403,7 +459,23 @@ export default {
       detailInfo: null,
       currentTag: '1',
       tableLoading: false,
-      isAdd: false
+      isAdd: false,
+      pagination: {
+        current: 1,
+        pageSize: 10,
+        total: 10
+      },
+      addEditParams: {
+        jsonString: {
+          name: '',
+          regulator: '',
+          countries: '',
+          ibAccounts: [],
+          enabled: 'Yes',
+          gatewayDepositSpecialRanks: [],
+        },
+        file: null
+      }
     };
   },
   // components: {
@@ -452,44 +524,45 @@ export default {
     },
     // 上传文件
     handleChangeBlackImport(info) {
-      const formData = new FormData()
-      formData.append('file',info.file,info.file.name)
-      formData.append('blacklistType',this.uploadBlackParams.blacklistType)
-      formData.append('paymentGatewayId',this.record.id)
-      blacklistImport(formData).then(res => {
-        if (res.code === 200) {
-          this.$message.success(res.msg)
-        } else {
-          this.$message.error(res.msg)
-        }
-      })
+      console.log(info)
+      // const formData = new FormData()
+      // formData.append('file',info.file,info.file.name)
+      // formData.append('blacklistType',this.uploadBlackParams.blacklistType)
+      // formData.append('paymentGatewayId',this.record.id)
+      // blacklistImport(formData).then(res => {
+      //   if (res.code === 200) {
+      //     this.$message.success(res.msg)
+      //   } else {
+      //     this.$message.error(res.msg)
+      //   }
+      // })
     },
     // 新增IB
     addBalance () {
       this.balanceAlarmList.push({
-        name: undefined,
-        alarmAmount: ''
+          metaTraderServerType: undefined,
+          account: ''
       })
     },
     // 删除IB
     delBalance (index) {
       this.balanceAlarmList.splice(index, 1)
     },
-    // 新增入今通道
+    // 新增入金通道
     addCoinType () {
       this.coinTypeList.push({
-        sourceCurrency: undefined,
-        minTransactionAmount: '',
-        maxTransactionAmount: '',
-      })
+          paymentGateway: {id: undefined},
+          extraScore: '',
+      },)
     },
-    // 删除入今通道
+    // 删除入金通道
     delCoinType (index) {
       this.coinTypeList.splice(index, 1)
     },
     // 获取国家、汇率、手续费类型、黑白名单类型、启用枚举、余额报警颜色
     getCommons () {
-      getPaymentCommons().then(res => {
+      getSpecialCommon().then(res => {
+        console.log('common',res.data)
         if (res.code===200) {
           this.commonList = res.data
         } else {
@@ -513,6 +586,12 @@ export default {
       }
       this.getASICData(this.searchForm)
     },
+    // 分页查询
+    handleTableChange (pagination,filters,sorter) {
+      this.pagination.current = pagination.current
+      this.searchForm.name = undefined
+      this.getASICData(this.searchForm)
+    },
     // 查询
     handleToSearchEnterprise (type) {
       if (type == '1') {
@@ -520,7 +599,7 @@ export default {
         this.searchForm.regulator = 'ASIC'
         if (this.searchForm.name) {
           this.tableLoading = true
-          paymentList(this.searchForm).then(res => {
+          getSpecialTableList(this.searchForm).then(res => {
             this.tableLoading = false
             if (res.code===200) {
               this.loadASICList = res.data
@@ -539,7 +618,7 @@ export default {
         this.searchForm.regulator = 'STV'
         if (this.searchForm.name) {
           this.tableLoading = true
-          paymentList(this.searchForm).then(res => {
+          getSpecialTableList(this.searchForm).then(res => {
             this.tableLoading = false
             if (res.code===200) {
               this.loadSTVList = res.data
@@ -574,12 +653,15 @@ export default {
     // 加载数据
     getASICData(params) {
       this.tableLoading = true
-      paymentList(params).then(res => {
+      getSpecialTableList(params).then(res => {
+        console.log(res)
         this.tableLoading = false
         if (res.code===200 && this.currentTag==='1') {
-          this.loadASICList = res.data
+          this.pagination.total = res.data.length
+          this.loadASICList = res.data.slice((this.pagination.current-1)*10,this.pagination.pageSize)
         } else if (res.code===200 && this.currentTag==='2') {
-          this.loadSTVList = res.data
+          this.pagination.total = res.data.length
+          this.loadSTVList = res.data.slice((this.pagination.current-1)*10,this.pagination.pageSize)
         } else {
           this.$message.error(res.msg)
         }
@@ -587,15 +669,11 @@ export default {
     },
     // 获取详情
     getDetail (params) {
-      paymentListDetail(params).then(res => {
+      getSpecialTableListDetail(params).then(res => {
+        console.log('detail',res)
         if (res.code === 200) {
           this.detailInfo = res.data
-          this.detailInfo.enabled = this.detailInfo.enabled === "Yes" ? true : false
-          this.detailInfo.callbackEnabled = this.detailInfo.callbackEnabled === "Yes" ? true : false
-          this.detailInfo.commissionFee = this.detailInfo.commissionFeeType === 'Percent' ? this.detailInfo.commissionFee*100 + '' : this.detailInfo.commissionFee + ''
-          this.coinTypeList = this.detailInfo.depositCurrencyList
-          this.balanceAlarmList = this.detailInfo.balanceAlarmList
-          this.blackListEnabled = this.detailInfo.blacklistType === 'Black' ? true : this.detailInfo.blacklistType === 'Black,White' ? true : false
+          this.addEditParams.jsonString = res.data
         } else {
           this.$message.error(res.msg)
         }
@@ -603,7 +681,7 @@ export default {
     },
     // 新增
     add () {
-      this.title = '新增'
+      this.title = '特例新增'
       this.isAdd = true
       this.visibleASIC = true
     },
@@ -613,7 +691,7 @@ export default {
       this.uploadBlackParams.paymentGatewayId = record.id
       this.record = record
       this.getDetail(record.id)
-      this.title = record.name
+      this.title = '特例配置'
       this.visibleASIC = true
     },
     // 确认更新特例配置
@@ -621,14 +699,14 @@ export default {
       let coinType = true
       let balanceType = true
       this.coinTypeList.forEach(item => {
-        if (item.sourceCurrency===undefined || item.minTransactionAmount==='' || item.maxTransactionAmount==='') {
+        if (item.paymentGateway.id===undefined || item.extraScore==='') {
           this.$message.error('入金通道中数据不能为空')
           coinType = false
           return
         }
       })
       this.balanceAlarmList.forEach(item => {
-        if (item.name===undefined || item.alarmAmount==='') {
+        if (item.metaTraderServerType===undefined || item.account==='') {
           this.$message.error('IB数据不能为空')
           balanceType = false
           return
@@ -638,45 +716,53 @@ export default {
         return
       }
       let requestParams = JSON.parse(JSON.stringify(this.detailInfo))
-      if (this.blackListEnabled&&!this.whiteListEnabled) {
-        requestParams.blacklistType = 'Black'
-      } else if (!this.blackListEnabled&&this.whiteListEnabled) {
-        requestParams.blacklistType = 'White'
-      } else if (this.blackListEnabled&&this.whiteListEnabled) {
-        requestParams.blacklistType = 'Black,White'
-      } else {
-        requestParams.blacklistType = undefined
-      }
       requestParams.depositCurrencyList = this.coinTypeList
       requestParams.balanceAlarmList = this.balanceAlarmList
-      const formParams = this.createForm.getFieldsValue()
-      formParams.supportCountries = formParams.supportCountries.join(',')
-      formParams.commissionFee = formParams.commissionFeeType === 'Percent' ? formParams.commissionFee/100 : formParams.commissionFee
-      requestParams.enabled = requestParams.enabled === true ? "Yes" : "No"
-      requestParams.callbackEnabled = requestParams.callbackEnabled === true ? "Yes" : "No"
-      console.log(Object.assign(requestParams,formParams))
-      this.createForm.validateFields((err, values) => {
-        if (!err) {
-          this.confirmLoadingASIC = true
-          paymentListUpdate(Object.assign(requestParams,formParams)).then(res => {
-            if (res.code === 200) {
-              this.confirmLoadingASIC = false
-              this.$message.success(res.msg)
-              this.getASICData({regulator: 'ASIC'})
-              this.getASICData({regulator: 'STV'})
-              this.handleCancelASIC()
-            } else {
-              this.confirmLoadingASIC = false
-              this.$message.error(res.msg)
-            }
-          })
-        }
-      });
+      console.log(Object.assign(requestParams))
+      if (this.isAdd) {
+        this.confirmLoadingASIC = true
+        getSpecialTableListAdd(Object.assign(requestParams)).then(res => {
+          if (res.code === 200) {
+            this.confirmLoadingASIC = false
+            this.$message.success(res.msg)
+            this.getASICData({regulator: 'ASIC'})
+            this.getASICData({regulator: 'STV'})
+            this.handleCancelASIC()
+          } else {
+            this.confirmLoadingASIC = false
+            this.$message.error(res.msg)
+          }
+        })
+      } else {
+        getSpecialTableListUpdate(Object.assign(requestParams)).then(res => {
+          if (res.code === 200) {
+            this.confirmLoadingASIC = false
+            this.$message.success(res.msg)
+            this.getASICData({regulator: 'ASIC'})
+            this.getASICData({regulator: 'STV'})
+            this.handleCancelASIC()
+          } else {
+            this.confirmLoadingASIC = false
+            this.$message.error(res.msg)
+          }
+        })
+      }
     },
     // 取消特例配置更新
     handleCancelASIC () {
       this.confirmLoadingASIC = false
       this.visibleASIC = false
+      this.addEditParams = {
+        jsonString: {
+          name: '',
+          regulator: '',
+          countries: '',
+          ibAccounts: [],
+          enabled: 'Yes',
+          gatewayDepositSpecialRanks: [],
+        },
+        file: null
+      }
     },
     // 删除
     del (record) {
@@ -723,9 +809,13 @@ export default {
 .ssy{
   display: flex;
 }
+.fontweight{
+  font-weight: bold;
+  color: #000000;
+}
 </style>
 <style>
-.operation-footer .ant-upload-list{
+.upload-re .ant-upload-list{
   display: none !important;
 }
 </style>

@@ -26,6 +26,8 @@
           :columns="ASICColumns"
           :data-source="loadASICList"
           :loading="tableLoading"
+          :pagination="pagination"
+          @change="handleTableChange"
           bordered
         >
           <a slot="name" slot-scope="text, record" @click="dialog(record)">{{record.name}}</a>
@@ -57,6 +59,8 @@
           :data-source="loadSTVList"
           bordered
           :loading="tableLoading"
+          :pagination="pagination"
+          @change="handleTableChange"
         >
           <a slot="name" slot-scope="text, record" @click="dialog(record)">{{record.name}}</a>
         </a-table>
@@ -497,7 +501,12 @@ export default {
       commonList: null,
       detailInfo: null,
       currentTag: '1',
-      tableLoading: false
+      tableLoading: false,
+      pagination: {
+        current: 1,
+        pageSize: 10,
+        total: 10
+      }
     };
   },
   // components: {
@@ -632,6 +641,7 @@ export default {
     },
     // 切换tag
     changeTag(key) {
+      this.pagination.current = 1
       this.currentTag = key
       this.searchForm.name = undefined
       if (this.currentTag == '1') {
@@ -639,6 +649,12 @@ export default {
       } else {
         this.searchForm.regulator = 'STV'
       }
+      this.getASICData(this.searchForm)
+    },
+    // 分页查询
+    handleTableChange (pagination,filters,sorter) {
+      console.log(pagination,filters,sorter)
+      this.searchForm.name = undefined
       this.getASICData(this.searchForm)
     },
     // 查询
@@ -705,9 +721,11 @@ export default {
       paymentList(params).then(res => {
         this.tableLoading = false
         if (res.code===200 && this.currentTag==='1') {
-          this.loadASICList = res.data
+          this.pagination.total = res.data.length
+          this.loadASICList = res.data.slice((this.pagination.current-1)*10,this.pagination.pageSize)
         } else if (res.code===200 && this.currentTag==='2') {
-          this.loadSTVList = res.data
+          this.pagination.total = res.data.length
+          this.loadSTVList = res.data.slice((this.pagination.current-1)*10,this.pagination.pageSize)
         } else {
           this.$message.error(res.msg)
         }

@@ -8,7 +8,7 @@ import config from '@/defaultSetting'
 import 'ant-design-vue/dist/antd.css'
 import '@/permission'
 import VueCookies from 'vue-cookies'
-// require('./mock');
+require('./mock');
 
 Vue.config.productionTip = false
 Vue.prototype.$config = config

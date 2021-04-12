@@ -29,9 +29,26 @@ const blacklistImport = function downFile(parameter){
     }
   })
 };
-
+// 通道例外原则-基础数据
+const getSpecialCommon = (params) => getAction('/admin/payment-gateway/special-rank/commons',params);
+// 通道例外原则-列表
+const getSpecialTableList = (params) => getAction('/admin/payment-gateway/special-rank',params);
+// 通道例外原则-单个详情
+const getSpecialTableListDetail = (params) => getAction(`/admin/payment-gateway/detail`,params);
+// 通道例外原则-新增
+const getSpecialTableListAdd = (params) => putAction('/admin/payment-gateway/special-rank',params);
+// 通道例外原则-更新
+const getSpecialTableListUpdate = (params) => postAction('/admin/payment-gateway/special-rank',params);
+// 通道例外原则-删除
+const getSpecialTableListDel = (params) => deletetAction(`/admin/payment-gateway/special-rank/delete`,params);
 
 export {
+  getSpecialTableListDel,
+  getSpecialTableListUpdate,
+  getSpecialTableListAdd,
+  getSpecialTableListDetail,
+  getSpecialTableList,
+  getSpecialCommon,
   blacklistImport,
   blacklistDownload,
   paymentListUpdate,

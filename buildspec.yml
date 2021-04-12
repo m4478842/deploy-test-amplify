@@ -10,5 +10,5 @@ artifacts:
   files:
     - 'appspec.yml'
     - 'dist/**/*'
-    - 'scripts/**/*'
+    - 'op.sh'
     - 'BSTests/**/*'

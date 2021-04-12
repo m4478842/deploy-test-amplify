@@ -28,7 +28,13 @@ accessKey = 'cDEx8QD3UMfxCnVuAE9H'
 def test(cap):
     driver = webdriver.Remote('https://'+username+':'+accessKey+'@hub-cloud.browserstack.com/wd/hub', desired_capabilities=cap)
     driver.get('http://18.167.121.200')
-    sleep(3)
+    sleep(2)
+    userName = driver.find_element_by_id('username')
+    passWord = driver.find_element_by_id('password')
+    userName.send_keys('portal@vitalgateway.com.au')
+    passWord.send_keys('123456')
+    driver.find_element_by_xpath('//*[@id="formLogin"]/div[3]/div/div/span/button').click()
+    sleep(2)
     driver.quit()
     
 
