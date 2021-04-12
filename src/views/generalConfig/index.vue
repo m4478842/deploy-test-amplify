@@ -31,7 +31,7 @@
           bordered
         >
           <a slot="name" slot-scope="text, record" @click="dialog(record)">{{record.name}}</a>
-          <span slot="balance" slot-scope="text, record" :style="{color: record.color==='Yellow'?'yellow':record.color==='Orange'?'orange':record.color==='Red'?'red':''}">{{record.balance}}</span>
+          <span slot="balance" slot-scope="text, record" :style="{color: record.balanceAlarmColor}">{{record.balance}}</span>
         </a-table>
       </a-tab-pane>
       <a-tab-pane key="2" tab="STV">

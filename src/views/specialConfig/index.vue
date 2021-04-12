@@ -719,16 +719,6 @@ export default {
       if (!coinType) {
         return
       }
-      // this.balanceAlarmList.forEach(item => {
-      //   if (item.metaTraderServerType===undefined || item.account==='') {
-      //     balanceType = false
-      //   }
-      // })
-      // console.log(this.selectedItems.length===0,this.addEditParams.file===null,balanceType)
-      // if (this.selectedItems.length===0 || this.addEditParams.file===null || balanceType) {
-      //   this.$message.error('国家、用户、服务器类型必须选择一项或多项填入')
-      //   return
-      // }
       let requestParams = JSON.parse(JSON.stringify(this.addEditParams))
       requestParams.jsonString.depositSpecialRankPaymentGateways = this.coinTypeList
       requestParams.jsonString.ibAccounts = this.balanceAlarmList
