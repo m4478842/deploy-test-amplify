@@ -31,7 +31,7 @@ const err = (error) => {
       default:
         notification.error({
           message: '系统提示',
-          description: data.message,
+          description: data.msg,
           duration: 4
         })
         break
