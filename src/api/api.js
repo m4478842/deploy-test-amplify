@@ -15,7 +15,8 @@ const blacklistDownload = function downFile(parameter){
     url: '/admin/payment-gateway/blacklist/download',
     data: parameter,
     method: 'post' ,
-    responseType: 'blob'
+    responseType: 'blob',
+    
   })
 };
 // 入金通道配置-黑白名单Excel上传

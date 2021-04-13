@@ -323,7 +323,17 @@ export default {
               style: cellStyle
             }
           },
-          customRender: text => <a-tooltip placement="top" title={text}>{text}</a-tooltip>
+          customRender: (text,index) => {
+            let name = ''
+            text.forEach(item=>{
+              if (index<text.length-1) {
+                name += item.email + ','
+              } else {
+                name += item.email
+              }
+            })
+            return <a-tooltip placement="top" title={name}>{name}</a-tooltip>
+          }
         },
         {
           title: '目标IB',
@@ -337,7 +347,11 @@ export default {
           customRender: text => {
             let name = ''
             text.forEach(item=>{
-              name += item.account + ','
+              if (index<text.length-1) {
+                name += item.account + ','
+              } else {
+                name += item.account
+              }
             })
             return <a-tooltip placement="top" title={name}>{name}</a-tooltip>
           }

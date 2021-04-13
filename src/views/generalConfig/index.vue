@@ -286,7 +286,7 @@
               <a-button type="primary" class="ml" :loading="blackListUpload">Import</a-button>
             </a-upload>
             <!-- <a-button type="primary" class="ml" :disabled="blackListImportEnabled">Import</a-button> -->
-            <a-button type="primary" class="ml" @click="blackListDownload('黑名单')">Download</a-button>
+            <a-button type="primary" class="ml" @click="blackListDownload('-blacklist-(Black)')">Download</a-button>
           </div>
           <div>
             <a-checkbox v-model="whiteListEnabled">
@@ -302,7 +302,7 @@
             >
               <a-button type="primary" class="ml" :loading="whiteListUpload">Import</a-button>
             </a-upload>
-            <a-button type="primary" class="ml" @click="whiteListDownload('白名单')">Download</a-button>
+            <a-button type="primary" class="ml" @click="whiteListDownload('-blacklist-(White)')">Download</a-button>
           </div>
         </div>
       </div>
@@ -536,13 +536,13 @@ export default {
           this.$message.success('导出成功')
         }
         if (typeof window.navigator.msSaveBlob !== 'undefined') {
-          window.navigator.msSaveBlob(new Blob([data]), fileName+'.xls')
+          window.navigator.msSaveBlob(new Blob([data]), this.record.name+fileName+'.xls')
         }else{
           let url = window.URL.createObjectURL(new Blob([data]))
           let link = document.createElement('a')
           link.style.display = 'none'
           link.href = url
-          link.setAttribute('download', fileName+'.xls')
+          link.setAttribute('download', this.record.name+fileName+'.xls')
           document.body.appendChild(link)
           link.click()
           document.body.removeChild(link) //下载完成移除元素
@@ -567,13 +567,13 @@ export default {
           this.$message.success('导出成功')
         }
         if (typeof window.navigator.msSaveBlob !== 'undefined') {
-          window.navigator.msSaveBlob(new Blob([data]), fileName+'.xls')
+          window.navigator.msSaveBlob(new Blob([data]), this.record.name+fileName+'.xls')
         }else{
           let url = window.URL.createObjectURL(new Blob([data]))
           let link = document.createElement('a')
           link.style.display = 'none'
           link.href = url
-          link.setAttribute('download', fileName+'.xls')
+          link.setAttribute('download', this.record.name+fileName+'.xls')
           document.body.appendChild(link)
           link.click()
           document.body.removeChild(link) //下载完成移除元素
