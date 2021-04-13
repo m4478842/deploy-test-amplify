@@ -1,7 +1,7 @@
 <template>
   <div>
-    <!-- <h1>特例配置</h1> -->
-    <a-tabs type="card" @change="changeTag">
+    <h1>汇率深度</h1>
+    <!-- <a-tabs type="card" @change="changeTag">
       <a-tab-pane key="1" tab="ASIC">
         <div class="table-page-search-wrapper">
           <a-form layout="inline" labelAlign="left">
@@ -74,7 +74,7 @@
           </span>
         </a-table>
       </a-tab-pane>
-    </a-tabs>
+    </a-tabs> -->
     <!-- 新增、编辑 -->
     <a-modal
       :title="title"
@@ -574,6 +574,7 @@ export default {
     // 获取国家、汇率、手续费类型、黑白名单类型、启用枚举、余额报警颜色
     getCommons () {
       getSpecialCommon().then(res => {
+        console.log('common',res.data)
         if (res.code===200) {
           this.commonList = res.data
         } else {

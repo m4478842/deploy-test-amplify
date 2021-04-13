@@ -11,10 +11,10 @@
           <a-icon type="control" />
           <span>特例配置</span>
         </a-menu-item>
-        <!-- <a-menu-item key="3">
+        <a-menu-item key="/exchangeRateConfig" @click="hrefTo('/exchangeRateConfig')">
           <a-icon type="funnel-plot" />
           <span>汇率深度</span>
-        </a-menu-item> -->
+        </a-menu-item>
       </a-menu>
     </a-layout-sider>
     <a-layout>

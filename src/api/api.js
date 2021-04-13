@@ -35,7 +35,7 @@ const getSpecialCommon = (params) => getAction('/admin/payment-gateway/special-r
 // 通道例外原则-列表
 const getSpecialTableList = (params) => getAction('/admin/payment-gateway/special-rank',params);
 // 通道例外原则-单个详情
-const getSpecialTableListDetail = (params) => getAction(`/admin/payment-gateway/detail`,params);
+const getSpecialTableListDetail = (params) => getAction(`/admin/payment-gateway/special-rank/${params}`);
 // 通道例外原则-新增
 const getSpecialTableListAdd = function downFile(parameter){
   return axios({
@@ -47,7 +47,6 @@ const getSpecialTableListAdd = function downFile(parameter){
     }
   })
 };
-// const getSpecialTableListAdd = (params) => putAction('/admin/payment-gateway/special-rank',params);
 // 通道例外原则-更新
 const getSpecialTableListUpdate = function downFile(parameter){
   return axios({
@@ -59,9 +58,8 @@ const getSpecialTableListUpdate = function downFile(parameter){
     }
   })
 };
-// const getSpecialTableListUpdate = (params) => postAction('/admin/payment-gateway/special-rank',params);
 // 通道例外原则-删除
-const getSpecialTableListDel = (params) => deleteAction(`/admin/payment-gateway/special-rank/delete`,params);
+const getSpecialTableListDel = (params) => deleteAction(`/admin/payment-gateway/special-rank/${params}`);
 // 入金通道配置-黑白名单Excel下载
 const specialRankDownload = function downFile(parameter){
   return axios({

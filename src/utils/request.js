@@ -22,6 +22,11 @@ const err = (error) => {
       case 400:
         notification.error({ message: '系统提示', description: '参数错误',duration: 4})
         break
+      case 403:
+          notification.error({ message: '系统提示', description:'当前登录已失效，请重新登录',duration: 4})
+          Vue.ls.remove(ACCESS_TOKEN)
+          window.location.reload()
+        break
       case 404:
           notification.error({ message: '系统提示', description:'很抱歉，资源未找到!',duration: 4})
         break

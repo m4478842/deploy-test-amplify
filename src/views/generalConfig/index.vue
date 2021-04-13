@@ -269,6 +269,36 @@
             <td><div style="width:80px"></div></td>
           </tr>
         </table>
+        <h3>定时任务</h3>
+        <a-divider class="no-mg" />
+        <table class="tbl" cellpadding='0' cellspacing='0'>
+          <tr>
+            <td>公式</td>
+            <td>动作</td>
+            <td>Note</td>
+            <td>操作</td>
+          </tr>
+          <tr v-for="(item,index) in jobList" :key="index">
+            <td>
+              <a-input type='text' v-model="item.jobCron" placeholder="格式为：4 * * * ？ *" style="width:200px"></a-input>
+            </td>
+            <td>
+              <a-select placeholder="请选择" v-model="item.jobActionType" style="width:200px">
+                <a-select-option value="Enable">
+                  打开通道
+                </a-select-option>
+                <a-select-option value="Disable">
+                  关闭通道
+                </a-select-option>
+              </a-select>
+            </td>
+            <td><a-input type='text' v-model="item.jobNote" placeholder="请输入备注" style="width:200px"></a-input></td>
+            <td style="width:103px">
+              <a-button type="dashed" icon="delete" shape="circle" style="margin-right:10px" @click="delTimeoutRask(index)" v-show="jobList.length>1"></a-button>
+              <a-button type="primary" icon="plus" shape="circle" @click="addTimeoutRask" v-show="index===jobList.length-1"></a-button>
+            </td>
+          </tr>
+        </table>
         <a-divider class="no-mg" />
         <div class="operation-footer">
           <div>
@@ -311,7 +341,6 @@
 </template>
 
 <script>
-import STable from '@/components/table/';
 import {
   paymentList,
   getPaymentCommons,
@@ -508,12 +537,16 @@ export default {
         current: 1,
         pageSize: 10,
         total: 10
-      }
+      },
+      jobList: [
+        {
+          jobCron: '',
+          jobNote: '',
+          jobActionType: undefined
+        }
+      ]
     };
   },
-  // components: {
-  //   STable,
-  // },
   created () {
     this.changeTag('1')
     this.getCommons()
@@ -631,6 +664,18 @@ export default {
     delCoinType (index) {
       this.coinTypeList.splice(index, 1)
     },
+    // 新增定时任务
+    addTimeoutRask () {
+      this.jobList.push({
+        jobActionType: undefined,
+        jobCron: '',
+        jobNote: '',
+      })
+    },
+    // 删除定时任务
+    delTimeoutRask (index) {
+      this.jobList.splice(index, 1)
+    },
     // 获取国家、汇率、手续费类型、黑白名单类型、启用枚举、余额报警颜色
     getCommons () {
       getPaymentCommons().then(res => {
@@ -649,7 +694,7 @@ export default {
       if (this.currentTag == '1') {
         this.searchForm.regulator = 'ASIC'
       } else {
-        this.searchForm.regulator = 'STV'
+        this.searchForm.regulator = 'St. Vincent'
       }
       this.getASICData(this.searchForm)
     },
@@ -658,7 +703,7 @@ export default {
       this.pagination.current = pagination.current
       this.getASICData(this.searchForm)
     },
-    // 查询
+    // 条件查询
     handleToSearchEnterprise (type) {
       this.pagination.current = 1
       if (type == '1') {
@@ -684,7 +729,7 @@ export default {
         }
       } else {
         this.currentTag==='2'
-        this.searchForm.regulator = 'STV'
+        this.searchForm.regulator = 'St. Vincent'
         if (this.searchForm.name) {
           this.tableLoading = true
           paymentList(this.searchForm).then(res => {
@@ -716,7 +761,7 @@ export default {
         this.getASICData(this.searchForm)
       } else {
         this.searchForm = {
-          regulator: 'STV',
+          regulator: 'St. Vincent',
           name: undefined,
         },
         this.pagination.current = 1
@@ -744,12 +789,18 @@ export default {
     getDetail (params) {
       paymentListDetail(params).then(res => {
         if (res.code === 200) {
+          let initJoblist = [{
+            jobNote: '',
+            jobCron: '',
+            jobActionType: undefined
+          }]
           this.detailInfo = res.data
           this.detailInfo.enabled = this.detailInfo.enabled === "Yes" ? true : false
           this.detailInfo.callbackEnabled = this.detailInfo.callbackEnabled === "Yes" ? true : false
           this.detailInfo.commissionFee = this.detailInfo.commissionFeeType === 'Percent' ? this.detailInfo.commissionFee*100 + '' : this.detailInfo.commissionFee + ''
           this.coinTypeList = this.detailInfo.depositCurrencyList
           this.balanceAlarmList = this.detailInfo.balanceAlarmList
+          this.jobList = this.detailInfo.jobList&&this.detailInfo.jobList.length>0?this.detailInfo.jobList:initJoblist
           this.blackListEnabled = this.detailInfo.blacklistType === 'Black' ? true : this.detailInfo.blacklistType === 'Black,White' ? true : false
           this.whiteListEnabled = this.detailInfo.blacklistType === 'White' ? true : this.detailInfo.blacklistType === 'Black,White' ? true : false
           setTimeout(() => {
@@ -778,6 +829,7 @@ export default {
     handleOkASIC () {
       let coinType = true
       let balanceType = true
+      let jobType = true
       this.coinTypeList.forEach(item => {
         if (item.sourceCurrency===undefined || item.minTransactionAmount==='' || item.maxTransactionAmount==='') {
           this.$message.error('货币类型设置中数据不能为空')
@@ -785,6 +837,9 @@ export default {
           return
         }
       })
+      if (!coinType) {
+        return
+      }
       this.balanceAlarmList.forEach(item => {
         if (item.name===undefined || item.alarmAmount==='') {
           this.$message.error('通道金额超限设置中数据不能为空')
@@ -792,9 +847,19 @@ export default {
           return
         }
       })
-      if (!coinType || !balanceType) {
+      if (!balanceType) {
         return
       }
+      // this.jobList.forEach(item => {
+        //   if (item.jobActionType===undefined || item.jobCron==='') {
+        //     this.$message.error('定时任务中数据不能为空')
+        //     jobType = false
+        //     return
+        //   }
+        // })
+        // if (!jobType) {
+        //   return
+      // }
       let requestParams = JSON.parse(JSON.stringify(this.detailInfo))
       if (this.blackListEnabled&&!this.whiteListEnabled) {
         requestParams.blacklistType = 'Black'
@@ -806,6 +871,7 @@ export default {
         requestParams.blacklistType = undefined
       }
       requestParams.depositCurrencyList = this.coinTypeList
+      requestParams.jobList = this.jobList
       requestParams.balanceAlarmList = this.balanceAlarmList
       const formParams = this.createForm.getFieldsValue()
       formParams.supportCountries = formParams.supportCountries.join(',')
@@ -821,7 +887,7 @@ export default {
               this.confirmLoadingASIC = false
               this.$message.success(res.msg)
               this.getASICData({regulator: 'ASIC'})
-              this.getASICData({regulator: 'STV'})
+              this.getASICData({regulator: 'St. Vincent'})
               this.handleCancelASIC()
             } else {
               this.confirmLoadingASIC = false

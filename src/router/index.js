@@ -34,6 +34,20 @@ const routes = [
     ]
   },
   {
+    path: '/exchangeRateConfig',
+    name: 'ExchangeRateConfig',
+    component: Layout,
+    children: [
+      {
+        path: '/exchangeRateConfig',
+        meta: {
+          title: '汇率深度'
+        },
+        component: () => import('@/views/exchangeRateConfig/index')
+      }
+    ]
+  },
+  {
     path: '/login',
     name: 'Login',
     meta: {
