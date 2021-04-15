@@ -7,5 +7,5 @@ jobs:
     runs-on: self-hosted
     steps:
     - uses: actions/checkout@v2
-    - run: ./op.sh build
-    - run: ./op.sh deploy
+    - run: sudo ./op.sh build
+    - run: sudo ./op.sh deploy
