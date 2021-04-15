@@ -9,5 +9,5 @@ jobs:
     - uses: actions/checkout@v2
     - run: npm i
     - run: npm run build --if-present
-    - run: sudo mv /home/ec2-user/tmp/actions-runner/_work/funding-vue/funding-vue/dist /home/ec2-user/htmls/dist.${GITHUB_REF#refs/heads/}.${GITHUB_SHA}
-    - run: sudo ln -snf  /home/ec2-user/htmls/dist.${GITHUB_REF#refs/heads/}.${GITHUB_SHA}/*  /usr/share/nginx/html
+    - run: sudo mv /home/ec2-user/tmp/actions-runner/_work/funding-vue/funding-vue/dist /usr/share/nginx/html_box/dist.${GITHUB_REF#refs/heads/}.${GITHUB_SHA}
+    - run: sudo ln -snf  /usr/share/nginx/html_box/dist.${GITHUB_REF#refs/heads/}.${GITHUB_SHA}/*  /usr/share/nginx/html
