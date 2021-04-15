@@ -7,6 +7,5 @@ jobs:
     runs-on: self-hosted
     steps:
     - uses: actions/checkout@v2
-    - run: pwd
-    - run: /home/ec2-user/tmp/actions-runner/_work/funding-vue/funding-vue/op.sh build
-    - run: /home/ec2-user/tmp/actions-runner/_work/funding-vue/funding-vue/op.sh deploy
+    - run: ./op.sh build
+    - run: ./op.sh deploy
