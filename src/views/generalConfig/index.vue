@@ -358,6 +358,7 @@ import {
   blacklistDownload,
   blacklistImport
 } from '@/api/api'
+import { getPointNumber } from '@/utils/util'
 export default {
   data() {
   const cellStyle = {
@@ -732,7 +733,7 @@ export default {
               this.loadASICList = this.loadASICList.slice((this.pagination.current-1)*10)
               this.loadASICList.forEach(item => {
                 if(item.commissionFeeType==='Percent') {
-                  item.commissionFee = item.commissionFee * 100 + '%'
+                  item.commissionFee = getPointNumber(item.commissionFee * 100,0) + '%'
                 }
               })
             } else {
@@ -758,7 +759,7 @@ export default {
               this.loadSTVList = this.loadSTVList.slice((this.pagination.current-1)*10)
               this.loadSTVList.forEach(item => {
                 if(item.commissionFeeType==='Percent') {
-                  item.commissionFee = item.commissionFee * 100 + '%'
+                  item.commissionFee = getPointNumber(item.commissionFee * 100,0) + '%'
                 }
               })
             } else {
@@ -798,7 +799,7 @@ export default {
           this.loadASICList = res.data.slice((this.pagination.current-1)*10)
           this.loadASICList.forEach(item => {
             if(item.commissionFeeType==='Percent') {
-              item.commissionFee = item.commissionFee * 100 + '%'
+              item.commissionFee = getPointNumber(item.commissionFee * 100,0) + '%'
             }
           })
         } else if (res.code===200 && this.currentTag==='2') {
@@ -806,7 +807,7 @@ export default {
           this.loadSTVList = res.data.slice((this.pagination.current-1)*10)
           this.loadSTVList.forEach(item => {
             if(item.commissionFeeType==='Percent') {
-              item.commissionFee = item.commissionFee * 100 + '%'
+              item.commissionFee = getPointNumber(item.commissionFee * 100,0) + '%'
             }
           })
         } else {

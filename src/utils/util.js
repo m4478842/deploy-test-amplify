@@ -300,7 +300,41 @@ export function getArrItem(value, arr) {
   const len = arr.length;
   for (var i = 0; i < len; i++) {
     if (value === arr[i].value) {
-      return arr[i].label;
+      return arr[i].label
     }
   }
+}
+/**
+ * @description: 保留小数点几位
+ * @param: num需要做小数点处理的值,n需要保留的位数
+ * @return: 返回对应的值
+ * @Author: HuangCheng
+ */
+export function getPointNumber (num, n) {
+  num = Number(num)
+  if(typeof num != 'number'){
+      return false
+  };
+  num = num.toString()
+  var result = ""
+  var zeroResult = function(n){
+      var zero = ""
+      for(var i = 0;i<n;i++){
+          zero+="0"
+      }
+      return zero;
+  }
+  if(num%1 == 0){//整数
+      result = num + "."+zeroResult(n)
+  }else{//小数
+      var num1 = num.split(".")
+      if(num1[1].length<n){
+        result = num1[0]+"."+num1[1]+zeroResult(n-num1[1].length)
+      } else{
+        result = num1[0]+"."+num1[1].substring(0,n)
+      }
+  }
+  let s = result.split('.')
+  result = s[1]==='' ? s[0] : result
+  return result
 }

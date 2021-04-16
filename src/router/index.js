@@ -48,6 +48,34 @@ const routes = [
     ]
   },
   {
+    path: '/bankRateConfig',
+    name: 'BankRateConfig',
+    component: Layout,
+    children: [
+      {
+        path: '/bankRateConfig',
+        meta: {
+          title: '银行汇率'
+        },
+        component: () => import('@/views/bankRateConfig/index')
+      }
+    ]
+  },
+  {
+    path: '/apiRateConfig',
+    name: 'ApiRateConfig',
+    component: Layout,
+    children: [
+      {
+        path: '/apiRateConfig',
+        meta: {
+          title: 'API汇率'
+        },
+        component: () => import('@/views/apiRateConfig/index')
+      }
+    ]
+  },
+  {
     path: '/login',
     name: 'Login',
     meta: {
