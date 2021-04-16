@@ -8,18 +8,17 @@ caps = [
     'os': 'Windows',
     'browser': 'chrome',
     'browser_version': '86.0',
-    'name': 'test_btn', 
+    'name': 'test_funding_vue', 
     'build': 'funding-vue-auto-test',
     },
     {
-    'os_version': '10',
-    'os': 'Windows',
-    'browser': 'chrome',
-    'browser_version': '85.0',
-    'name': 'test_btn', 
-    'build': 'funding-vue-auto-test' ,
-    },
-
+    "os" : "OS X",
+    "os_version" : "Big Sur",
+    "browser" : "Safari",
+    "browser_version" : "14.0",
+    'name': 'test_funding_vue', 
+    'build': 'funding-vue-auto-test',
+    }
 ]
 
 username =  'wangcong1'
@@ -27,7 +26,7 @@ accessKey = 'cDEx8QD3UMfxCnVuAE9H'
 
 def test(cap):
     driver = webdriver.Remote('https://'+username+':'+accessKey+'@hub-cloud.browserstack.com/wd/hub', desired_capabilities=cap)
-    driver.get('http://18.167.121.200')
+    driver.get('http://16.162.44.75')
     sleep(2)
     userName = driver.find_element_by_id('username')
     passWord = driver.find_element_by_id('password')

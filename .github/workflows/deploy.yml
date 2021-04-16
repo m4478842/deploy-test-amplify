@@ -10,3 +10,4 @@ jobs:
     - run: chmod +x op.sh
     - run: ./op.sh build
     - run: ./op.sh deploy
+    - run: ./op.sh test

@@ -132,6 +132,7 @@
                       ],
                     },
                   ]"
+                  @change="commissionFeeTypeChange"
                   placeholder="请选择"
                 >
                   <a-select-option :value="item" v-for="(item,index) in commonList.commissionFeeTypes" :key="index">
@@ -145,6 +146,14 @@
                 <a-input
                   placeholder="请输入手续费"
                   type="number"
+                  v-if="isPercent"
+                  suffix="%"
+                  v-decorator="['commissionFee', {rules: [{ required: true, message: '请输入手续费', whitespace: true}]}]"
+                />
+                <a-input
+                  placeholder="请输入手续费"
+                  type="number"
+                  v-else
                   v-decorator="['commissionFee', {rules: [{ required: true, message: '请输入手续费', whitespace: true}]}]"
                 />
               </a-form-item>
@@ -544,7 +553,8 @@ export default {
           jobNote: '',
           jobActionType: undefined
         }
-      ]
+      ],
+      isPercent: false
     };
   },
   created () {
@@ -720,6 +730,11 @@ export default {
               })
               this.pagination.total = this.loadASICList.length
               this.loadASICList = this.loadASICList.slice((this.pagination.current-1)*10)
+              this.loadASICList.forEach(item => {
+                if(item.commissionFeeType==='Percent') {
+                  item.commissionFee = item.commissionFee * 100 + '%'
+                }
+              })
             } else {
               this.$message.error(res.msg)
             }
@@ -741,6 +756,11 @@ export default {
               })
               this.pagination.total = this.loadSTVList.length
               this.loadSTVList = this.loadSTVList.slice((this.pagination.current-1)*10)
+              this.loadSTVList.forEach(item => {
+                if(item.commissionFeeType==='Percent') {
+                  item.commissionFee = item.commissionFee * 100 + '%'
+                }
+              })
             } else {
               this.$message.error(res.msg)
             }
@@ -772,14 +792,23 @@ export default {
     getASICData(params) {
       this.tableLoading = true
       paymentList(params).then(res => {
-        console.log(res)
         this.tableLoading = false
         if (res.code===200 && this.currentTag==='1') {
           this.pagination.total = res.data.length
           this.loadASICList = res.data.slice((this.pagination.current-1)*10)
+          this.loadASICList.forEach(item => {
+            if(item.commissionFeeType==='Percent') {
+              item.commissionFee = item.commissionFee * 100 + '%'
+            }
+          })
         } else if (res.code===200 && this.currentTag==='2') {
           this.pagination.total = res.data.length
           this.loadSTVList = res.data.slice((this.pagination.current-1)*10)
+          this.loadSTVList.forEach(item => {
+            if(item.commissionFeeType==='Percent') {
+              item.commissionFee = item.commissionFee * 100 + '%'
+            }
+          })
         } else {
           this.$message.error(res.msg)
         }
@@ -798,6 +827,7 @@ export default {
           this.detailInfo.enabled = this.detailInfo.enabled === "Yes" ? true : false
           this.detailInfo.callbackEnabled = this.detailInfo.callbackEnabled === "Yes" ? true : false
           this.detailInfo.commissionFee = this.detailInfo.commissionFeeType === 'Percent' ? this.detailInfo.commissionFee*100 + '' : this.detailInfo.commissionFee + ''
+          this.isPercent = this.detailInfo.commissionFeeType === 'Percent' ? true : false
           this.coinTypeList = this.detailInfo.depositCurrencyList
           this.balanceAlarmList = this.detailInfo.balanceAlarmList
           this.jobList = this.detailInfo.jobList&&this.detailInfo.jobList.length>0?this.detailInfo.jobList:initJoblist
@@ -815,6 +845,10 @@ export default {
           this.$message.error(res.msg)
         }
       })
+    },
+    // 手续费类型变更
+    commissionFeeTypeChange (value) {
+      this.isPercent = value === 'Percent' ? true : false
     },
     // 通道配置
     dialog (record) {
