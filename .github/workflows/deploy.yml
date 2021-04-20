@@ -14,10 +14,9 @@ jobs:
         ./op.sh deploy
     - name: pytest with selenium in browserstack
       run: |
-        pytest BSTests/test.py --html=/home/ec2-user/reports/${GITHUB_REF#refs/heads/}.${github.event.commits[0].message}.${GITHUB_SHA}.report.html 
+        pytest BSTests/test.py --html=/home/ec2-user/reports/${GITHUB_REF#refs/heads/}.${GITHUB_SHA}.report.html 
     - name: Print the report
-      if: always()
-      # shell: bash
+      if: always() # shell: bash
       run: |
-        value=`cat /home/ec2-user/reports/${GITHUB_REF#refs/heads/}.${github.event.commits[0].message}.${GITHUB_SHA}.report.html`
+        value=`cat /home/ec2-user/reports/${GITHUB_REF#refs/heads/}.${GITHUB_SHA}.report.html`
         echo The result is $value
