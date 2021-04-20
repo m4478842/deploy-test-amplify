@@ -20,3 +20,4 @@ jobs:
       run: |
         value=`cat /home/ec2-user/reports/${GITHUB_REF#refs/heads/}.${GITHUB_SHA}.report.html`
         echo The result is $value
+        echo https://www.runoob.com/runcode

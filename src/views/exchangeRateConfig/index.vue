@@ -13,7 +13,6 @@
             <span class="table-page-search-submitButtons">
               <a-button type="primary" @click="handleToSearchEnterprise('1')">查询</a-button>
               <a-button style="margin-left: 15px" icon="reload" @click="resetSearchEnterprise('1')">重置</a-button>
-              <a-button type="primary" style="margin-left: 15px" icon="plus" @click="add">新增</a-button>
             </span>
           </a-col>
         </a-row>
@@ -32,7 +31,7 @@
     >
       <a slot="name" slot-scope="text, record" @click="dialog(record)">{{record.name}}</a>
     </a-table>
-    <!-- 新增、编辑 -->
+    <!-- 编辑 -->
     <a-modal
       :title="title"
       :visible="visibleASIC"
@@ -42,106 +41,70 @@
       @cancel="handleCancelASIC"
       v-if="commonList"
     >
-      <!-- 新增 -->
+      <!-- 编辑 -->
       <div class="container" v-if="isAdd">
-        <h3>配置</h3>
+        <h3>AUDIDR</h3>
         <a-divider class="no-mg" />
-        <table class="tbl" cellpadding='0' cellspacing='0'>
-          <tr>
-            <td>配置名字</td>
-            <td></td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>
-              <a-input type='text' v-model="addEditParams.jsonString.name" placeholder="请输入配置名字" style="width:200px"></a-input>
-            </td>
-            <td></td>
-            <td></td>
-            <td style="width:103px"></td>
-          </tr>
-          <tr>
-            <td>入金通道</td>
-            <td>排序分数</td>
-            <td>操作</td>
-          </tr>
-          <tr v-for="(item,index) in coinTypeList" :key="index">
-            <td>
-              <a-select v-model="item.paymentGateway.id" placeholder="请选择入金通道" style="width:200px">
-                <a-select-option :value="itemD.id" v-for="(itemD,index) in commonList.paymentGateways" :key="index">
-                  {{itemD.name}}
-                </a-select-option>
-              </a-select>
-            </td>
-            <td>
-              <a-input type='number' v-model="item.extraScore" placeholder="请输入排序分数" style="width:200px"></a-input>
-            </td>
-            <td style="width:103px">
-              <a-button type="dashed" icon="delete" shape="circle" style="margin-right:10px" @click="delCoinType(index)" v-show="coinTypeList.length>1"></a-button>
-              <a-button type="primary" icon="plus" shape="circle" @click="addCoinType" v-show="index===coinTypeList.length-1"></a-button>
-            </td>
-          </tr>
-        </table>
-        <h3>适用于</h3>
+        <ul class="base-info">
+          <li>
+            <span>Digits：</span>
+            <a-input type='number' placeholder="digits" style="width:200px"></a-input>
+          </li>
+          <li>
+            <span>基准入金汇率：</span>
+            <span class="fontweight">11259.82</span>
+          </li>
+          <li>
+            <span>基准出金汇率：</span>
+            <span class="fontweight">11232.92</span>
+          </li>
+          <li>
+            <span>spread：</span>
+            <span class="fontweight">26.90</span>
+          </li>
+        </ul>
         <a-divider class="no-mg" />
-        <table class="tbl" cellpadding='0' cellspacing='0'>
-          <tr>
-            <td>国家</td>
-          </tr>
-          <tr>
-            <td>
-              <a-select mode="multiple" v-model="selectedItems" @change="handleChange" placeholder="请选择国家" style="width:200px">
-                <a-select-option :value="item" v-for="(item,index) in commonList.countries" :key="index">
-                  {{item}}
-                </a-select-option>
-              </a-select>
-            </td>
-          </tr>
-          <tr>
-            <td>用户</td>
-          </tr>
-          <tr>
-            <td class="ssy upload-re">
-              <a-upload
-                name="file"
-                :multiple="true"
-                :headers="headers"
-                :data="uploadBlackParams"
-                :customRequest="handleChangeBlackImport"
-                accept=".xls,.xlsx"
-              >
-                <a-button type="primary" class="ml" :loading="blackListUpload" style="margin:0">Import</a-button>
-              </a-upload>
-              <a-button type="primary" class="ml" @click="blackListDownload('-Users')">Download</a-button>
-            </td>
-          </tr>
-          <tr><td>IB</td></tr>
-          <tr>
-            <td>服务器类型</td>
-            <td>IB号</td>
-            <td>操作</td>
-            <td style="width:100px"></td>
-          </tr>
-          <tr v-for="(item,index) in balanceAlarmList" :key="index">
-            <td>
-              <a-select v-model="item.metaTraderServerType" placeholder="请选择服务器类型" style="width:200px">
-                <a-select-option :value="itemD" v-for="(itemD,index) in commonList.metaTraderServerTypes" :key="index">
-                  {{itemD}}
-                </a-select-option>
-              </a-select>
-            </td>
-            <td>
-              <a-input type='text' v-model="item.account" placeholder="请输入IB" style="width:200px"></a-input>
-            </td>
-            <td style="width:103px">
-              <a-button type="dashed" icon="delete" shape="circle" style="margin-right:10px" @click="delBalance(index)" v-show="balanceAlarmList.length>1"></a-button>
-              <a-button type="primary" icon="plus" shape="circle" @click="addBalance" v-show="index===balanceAlarmList.length-1"></a-button>
-            </td>
-          </tr>
-        </table>
+        <div class="content">
+          <table class="tbl" cellpadding='0' cellspacing='0'>
+            <tr>
+              <td>入金汇率深度</td>
+              <td>入金汇率</td>
+              <td>操作</td>
+            </tr>
+            <tr>
+              <td>
+                <a-input type='number' placeholder="digits" style="width:100px"></a-input>
+              </td>
+              <td class="fontweight">11259.82</td>
+              <td style="width:135px">
+                <a-button type="dashed" icon="delete" shape="circle" style="margin-right:10px"></a-button>
+                <a-button type="primary" icon="plus" shape="circle"></a-button>
+              </td>
+            </tr>
+          </table>
+          <table class="tbl" cellpadding='0' cellspacing='0'>
+            <tr>
+              <td>spread</td>
+              <td>出金汇率深度</td>
+              <td>出金汇率</td>
+              <td>操作</td>
+            </tr>
+            <tr>
+              <td class="fontweight">11232.92</td>
+              <td>
+                <a-input type='number' placeholder="digits" style="width:100px"></a-input>
+              </td>
+              <td class="fontweight">12312</td>
+              <td style="width:135px">
+                <a-button type="dashed" icon="delete" shape="circle" style="margin-right:10px"></a-button>
+                <a-button type="primary" icon="plus" shape="circle"></a-button>
+              </td>
+            </tr>
+          </table>
+        </div>
       </div>
       <!-- 编辑 -->
-      <div class="container" v-else>
+      <!-- <div class="container" v-else>
         <h3>配置</h3>
         <a-divider class="no-mg" />
         <table class="tbl" cellpadding='0' cellspacing='0'>
@@ -152,7 +115,7 @@
           </tr>
           <tr>
             <td>
-              <a-input type='text' v-model="addEditParams.jsonString.name" placeholder="请输入配置名字" style="width:200px"></a-input>
+              <a-input type='text' v-model="addEditParams.jsonString.name" placeholder="请输入配置名字" style="width:100px"></a-input>
             </td>
             <td></td>
             <td></td>
@@ -165,14 +128,14 @@
           </tr>
           <tr v-for="(item,index) in coinTypeList" :key="index">
             <td>
-              <a-select v-model="item.paymentGateway.id" placeholder="请选择入金通道" style="width:200px">
+              <a-select v-model="item.paymentGateway.id" placeholder="请选择入金通道" style="width:100px">
                 <a-select-option :value="itemD.id" v-for="(itemD,index) in commonList.paymentGateways" :key="index">
                   {{itemD.name}}
                 </a-select-option>
               </a-select>
             </td>
             <td>
-              <a-input type='number' v-model="item.extraScore" placeholder="请输入排序分数" style="width:200px"></a-input>
+              <a-input type='number' v-model="item.extraScore" placeholder="请输入排序分数" style="width:100px"></a-input>
             </td>
             <td style="width:103px">
               <a-button type="dashed" icon="delete" shape="circle" style="margin-right:10px" @click="delCoinType(index)" v-show="coinTypeList.length>1"></a-button>
@@ -188,7 +151,7 @@
           </tr>
           <tr>
             <td>
-              <a-select mode="multiple" v-model="selectedItems" @change="handleChange" placeholder="请选择国家" style="width:200px">
+              <a-select mode="multiple" v-model="selectedItems" @change="handleChange" placeholder="请选择国家" style="width:100px">
                 <a-select-option :value="item" v-for="(item,index) in commonList.countries" :key="index">
                   {{item}}
                 </a-select-option>
@@ -222,14 +185,14 @@
           </tr>
           <tr v-for="(item,index) in balanceAlarmList" :key="index">
             <td>
-              <a-select v-model="item.metaTraderServerType" placeholder="请选择服务器类型" style="width:200px">
+              <a-select v-model="item.metaTraderServerType" placeholder="请选择服务器类型" style="width:100px">
                 <a-select-option :value="itemD" v-for="(itemD,index) in commonList.metaTraderServerTypes" :key="index">
                   {{itemD}}
                 </a-select-option>
               </a-select>
             </td>
             <td>
-              <a-input type='text' v-model="item.account" placeholder="请输入IB" style="width:200px"></a-input>
+              <a-input type='text' v-model="item.account" placeholder="请输入IB" style="width:100px"></a-input>
             </td>
             <td style="width:103px">
               <a-button type="dashed" icon="delete" shape="circle" style="margin-right:10px" @click="delBalance(index)" v-show="balanceAlarmList.length>1"></a-button>
@@ -237,7 +200,7 @@
             </td>
           </tr>
         </table>
-      </div>
+      </div> -->
     </a-modal>
   </div>
 </template>
@@ -345,20 +308,21 @@ export default {
       loadASICList: [],
       loadSTVList: [],
       selectedItems: [],
-      title: '',
+      title: '汇率深度',
       record: null,
-      visibleASIC: false,
+      visibleASIC: true,
       confirmLoadingASIC: false,
       coinTypeList: [
         {
-          paymentGateway: {id: undefined},
-          extraScore: '',
-        },
+          rjhlsd: '',
+          rjhl: '',
+        }
       ],
       balanceAlarmList: [
         {
-          metaTraderServerType: undefined,
-          account: ''
+          cjhlsd: '',
+          cjhl: '',
+          spread: ''
         }
       ],
       blackListEnabled: true,
@@ -374,7 +338,7 @@ export default {
       detailInfo: null,
       currentTag: '1',
       tableLoading: false,
-      isAdd: false,
+      isAdd: true,
       pagination: {
         current: 1,
         pageSize: 10,
@@ -404,45 +368,12 @@ export default {
     this.getCommons()
   },
   methods: {
-    // 下载
-    blackListDownload (fileName) {
-      if(!fileName || typeof fileName != "string"){
-        fileName = "导出文件"
-      }
-      let param = {
-        specialRankId: this.record.id
-      };
-      specialRankDownload(param).then((data)=>{
-        if (!data) {
-          this.$message.warning("文件下载失败")
-          return
-        } else {
-          this.$message.success('导出成功')
-        }
-        if (typeof window.navigator.msSaveBlob !== 'undefined') {
-          window.navigator.msSaveBlob(new Blob([data]), 'Special-Rank-'+this.record.name+fileName+'.xls')
-        }else{
-          let url = window.URL.createObjectURL(new Blob([data]))
-          let link = document.createElement('a')
-          link.style.display = 'none'
-          link.href = url
-          link.setAttribute('download', 'Special-Rank-'+this.record.name+fileName+'.xls')
-          document.body.appendChild(link)
-          link.click()
-          document.body.removeChild(link) //下载完成移除元素
-          window.URL.revokeObjectURL(url) //释放掉blob对象
-        }
-      })
-    },
-    // 上传文件
-    handleChangeBlackImport(info) {
-      this.formData.append('file',info.file,info.file.name)
-    },
     // 新增IB
     addBalance () {
       this.balanceAlarmList.push({
-          metaTraderServerType: undefined,
-          account: ''
+        cjhlsd: '',
+        cjhl: '',
+        spread: ''
       })
     },
     // 删除IB
@@ -452,9 +383,9 @@ export default {
     // 新增入金通道
     addCoinType () {
       this.coinTypeList.push({
-          paymentGateway: {id: undefined},
-          extraScore: '',
-      },)
+        rjhlsd: '',
+        rjhl: '',
+      })
     },
     // 删除入金通道
     delCoinType (index) {
@@ -652,27 +583,17 @@ export default {
     handleCancelASIC () {
       this.confirmLoadingASIC = false
       this.visibleASIC = false
-      this.addEditParams = {
-        jsonString: {
-          name: '',
-          regulator: '',
-          countries: '',
-          ibAccounts: [],
-          enabled: 'Yes',
-          depositSpecialRankPaymentGateways: [],
-        },
-        file: null
-      }
       this.coinTypeList = [
         {
-          paymentGateway: {id: undefined},
-          extraScore: '',
-        },
+          rjhlsd: '',
+          rjhl: '',
+        }
       ]
       this.balanceAlarmList = [
         {
-          metaTraderServerType: undefined,
-          account: ''
+          cjhlsd: '',
+          cjhl: '',
+          spread: ''
         }
       ]
       this.selectedItems = []
@@ -748,6 +669,27 @@ export default {
 .fontweight{
   font-weight: bold;
   color: #000000;
+}
+.base-info{
+  padding: 0;
+  margin: 20px 0 20px 0;
+  list-style: none;
+  li{
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
+    span{
+      &:first-child{
+        width: 120px;
+        // text-align: right;
+      }
+    }
+  }
+}
+.content{
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
 }
 </style>
 <style>
