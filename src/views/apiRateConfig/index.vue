@@ -225,7 +225,6 @@ export default {
           item.rate = getPointNumber(this.remarkList[index].rate,item.digits)
           let localIpt = item.depositMargin/(10**item.digits)
           let localOpt = item.withdrawalMargin/(10**item.digits)
-          console.log(Number(item.rate),localIpt,localOpt,(Number(item.rate) + Number(localIpt)))
           item.ipt = getPointNumber((Number(item.rate)*(10**item.digits) + Number(localIpt)*(10**item.digits))/(10**item.digits),item.digits)
           item.opt = getPointNumber((Number(item.rate)*(10**item.digits) + Number(localOpt)*(10**item.digits))/(10**item.digits),item.digits)
           item.srt = getPointNumber((item.depositMargin - item.withdrawalMargin)/item.rate * 100,2) + '%'
@@ -368,7 +367,6 @@ export default {
     // 获取详情
     getDetail (params) {
       getAPIRateListDetail(params).then(res => {
-        console.log('detail',res)
         if (res.code === 200) {
           this.detailInfo = res.data
           this.detailInfo.changeRate = getPointNumber((this.detailInfo.lastRate.rate - this.detailInfo.pendingRate.rate) / this.detailInfo.lastRate.rate,2) + '%'
@@ -398,9 +396,7 @@ export default {
       }
       this.confirmLoadingASIC = true
       params.exchangeRateConfig.rateChangeAlarm /= 100
-      console.log(params)
       getAPIRateUpdate(params).then(res => {
-        console.log('更新成功',res)
         if (res.code === 200) {
           this.$message.success('更新成功')
           this.getASICData()

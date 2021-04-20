@@ -301,7 +301,6 @@ export default {
           this.detailInfo.changeRateIpt = getPointNumber((this.detailInfo.lastRate.depositRate - this.detailInfo.pendingRate.depositRate) / this.detailInfo.lastRate.depositRate,2) + '%'
           this.detailInfo.changeRateOpt = getPointNumber((this.detailInfo.lastRate.withdrawalRate - this.detailInfo.pendingRate.withdrawalRate) / this.detailInfo.lastRate.withdrawalRate,2) + '%'
           this.detailInfo.exchangeRateConfig.rateChangeAlarm = this.detailInfo.exchangeRateConfig.rateChangeAlarm * 100
-          console.log('detail',this.detailInfo)
         } else {
           this.$message.error(res.msg)
         }
@@ -327,9 +326,7 @@ export default {
       }
       this.confirmLoadingASIC = true
       params.exchangeRateConfig.rateChangeAlarm /= 100
-      console.log(params)
       getBankRateUpdate(params).then(res => {
-        console.log('更新成功',res)
         if (res.code === 200) {
           this.$message.success('更新成功')
           this.getASICData()
