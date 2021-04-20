@@ -1,80 +1,37 @@
 <template>
   <div>
     <h1>汇率深度</h1>
-    <!-- <a-tabs type="card" @change="changeTag">
-      <a-tab-pane key="1" tab="ASIC">
-        <div class="table-page-search-wrapper">
-          <a-form layout="inline" labelAlign="left">
-            <a-row :gutter="24">
-              <a-col :lg="5" :md="8" :sm="12">
-                <a-form-item label="配置名字" :labelCol="{lg: {span: 8}, sm: {span: 7}}" :wrapperCol="{lg: {span: 16}, sm: {span: 17} }">
-                  <a-input v-model="searchForm.name" placeholder="请输入配置名字"/>
-                </a-form-item>
-              </a-col>
-              <a-col :lg="6" :md="8" :sm="12">
-                <span class="table-page-search-submitButtons">
-                  <a-button type="primary" @click="handleToSearchEnterprise('1')">查询</a-button>
-                  <a-button style="margin-left: 15px" icon="reload" @click="resetSearchEnterprise('1')">重置</a-button>
-                  <a-button type="primary" style="margin-left: 15px" icon="plus" @click="add">新增</a-button>
-                </span>
-              </a-col>
-            </a-row>
-          </a-form>
-        </div>
-        <a-table
-          ref="ASICTable"
-          size="default"
-          :rowKey="(record) => record.id"
-          :columns="ASICColumns"
-          :data-source="loadASICList"
-          :loading="tableLoading"
-          :pagination="pagination"
-          @change="handleTableChange"
-          bordered
-        >
-          <a slot="name" slot-scope="text, record" @click="dialog(record)">{{record.name}}</a>
-          <span slot="action" slot-scope="text, record">
-            <a @click="del(record)">删除</a>
-          </span>
-        </a-table>
-      </a-tab-pane>
-      <a-tab-pane key="2" tab="STV">
-        <div class="table-page-search-wrapper">
-          <a-form layout="inline" labelAlign="left">
-            <a-row :gutter="24">
-              <a-col :lg="8" :md="8" :sm="12">
-                <a-form-item label="ConfigurationName" :labelCol="{lg: {span: 11}, sm: {span: 7}}" :wrapperCol="{lg: {span: 13}, sm: {span: 17} }">
-                  <a-input v-model="searchForm.name" placeholder="Configuration Name"/>
-                </a-form-item>
-              </a-col>
-              <a-col :lg="6" :md="8" :sm="12">
-                <span class="table-page-search-submitButtons">
-                  <a-button type="primary" @click="handleToSearchEnterprise('2')">查询</a-button>
-                  <a-button style="margin-left: 8px" icon="reload" @click="resetSearchEnterprise('2')">重置</a-button>
-                  <a-button type="primary" style="margin-left: 15px" icon="plus" @click="add">新增</a-button>
-                </span>
-              </a-col>
-            </a-row>
-          </a-form>
-        </div>
-        <a-table
-          ref="STVTable"
-          size="default"
-          :rowKey="(record) => record.id"
-          :columns="STVColumns"
-          :data-source="loadSTVList"
-          bordered
-          :loading="tableLoading"
-          :pagination="pagination"
-          @change="handleTableChange"
-        >
-          <a slot="name" slot-scope="text, record" @click="dialog(record)">{{record.name}}</a>
-          <span slot="action" slot-scope="text, record">
-            <a @click="del(record)">delete</a>
-          </span>
-        </a-table>
-      </a-tab-pane>
-    </a-tabs> -->
+    <div class="table-page-search-wrapper">
+      <a-form layout="inline" labelAlign="left">
+        <a-row :gutter="24">
+          <a-col :lg="5" :md="8" :sm="12">
+            <a-form-item label="Pairs" :labelCol="{lg: {span: 8}, sm: {span: 7}}" :wrapperCol="{lg: {span: 16}, sm: {span: 17} }">
+              <a-input v-model="searchForm.name" placeholder="Pairs Name"/>
+            </a-form-item>
+          </a-col>
+          <a-col :lg="6" :md="8" :sm="12">
+            <span class="table-page-search-submitButtons">
+              <a-button type="primary" @click="handleToSearchEnterprise('1')">查询</a-button>
+              <a-button style="margin-left: 15px" icon="reload" @click="resetSearchEnterprise('1')">重置</a-button>
+              <a-button type="primary" style="margin-left: 15px" icon="plus" @click="add">新增</a-button>
+            </span>
+          </a-col>
+        </a-row>
+      </a-form>
+    </div>
+    <a-table
+      ref="ASICTable"
+      size="default"
+      :rowKey="(record) => record.id"
+      :columns="ASICColumns"
+      :data-source="loadASICList"
+      :loading="tableLoading"
+      :pagination="pagination"
+      @change="handleTableChange"
+      bordered
+    >
+      <a slot="name" slot-scope="text, record" @click="dialog(record)">{{record.name}}</a>
+    </a-table>
     <!-- 新增、编辑 -->
     <a-modal
       :title="title"
@@ -307,13 +264,13 @@ export default {
     return {
       ASICColumns: [
         {
-          title: '配置名字',
+          title: 'Pairs',
           align: 'center',
           dataIndex: 'name',
           scopedSlots: { customRender: 'name' },
         },
         {
-          title: '目标客户',
+          title: '汇率深度',
           align: 'center',
           dataIndex: 'userAccounts',
           customCell: () => {
@@ -334,7 +291,7 @@ export default {
           }
         },
         {
-          title: '目标IB',
+          title: '入金汇率',
           align: 'center',
           dataIndex: 'ibAccounts',
           customCell: () => {
@@ -355,7 +312,7 @@ export default {
           }
         },
         {
-          title: '目标国家',
+          title: '出金汇率',
           align: 'center',
           dataIndex: 'countries',
           customCell: () => {
@@ -366,87 +323,19 @@ export default {
           customRender: text => <a-tooltip placement="top" title={text}>{text}</a-tooltip>
         },
         {
-          title: '是否生效',
+          title: 'Last Update',
           align: 'center',
           dataIndex: 'enabled',
         },
         {
-          title: '操作',
+          title: '报价来源',
           align: 'center',
-          dataIndex: 'action',
-          scopedSlots: { customRender: 'action' },
-        },
-      ],
-      STVColumns: [
-        {
-          title: 'Configuration Name',
-          align: 'center',
-          dataIndex: 'name',
-          scopedSlots: { customRender: 'name' },
+          dataIndex: 'enabledd',
         },
         {
-          title: 'Target Customer',
+          title: '状态',
           align: 'center',
-          dataIndex: 'userAccounts',
-          customCell: () => {
-            return {
-              style: cellStyle
-            }
-          },
-          customRender: (text,index) => {
-            let name = ''
-            text.forEach(item=>{
-              if (index<text.length-1) {
-                name += item.email + ','
-              } else {
-                name += item.email
-              }
-            })
-            return <a-tooltip placement="top" title={name}>{name}</a-tooltip>
-          }
-        },
-        {
-          title: 'Target IB',
-          align: 'center',
-          dataIndex: 'ibAccounts',
-          customCell: () => {
-            return {
-              style: cellStyle
-            }
-          },
-          customRender: text => {
-            let name = ''
-            text.forEach((item,index)=>{
-              if (index<text.length-1) {
-                name += item.account + ','
-              } else {
-                name += item.account
-              }
-            })
-            return <a-tooltip placement="top" title={name}>{name}</a-tooltip>
-          }
-        },
-        {
-          title: 'Target Country',
-          align: 'center',
-          dataIndex: 'countries',
-          customCell: () => {
-            return {
-              style: cellStyle
-            }
-          },
-          customRender: text => <a-tooltip placement="top" title={text}>{text}</a-tooltip>
-        },
-        {
-          title: 'Enabled',
-          align: 'center',
-          dataIndex: 'enabled',
-        },
-        {
-          title: 'operation',
-          align: 'center',
-          dataIndex: 'action',
-          scopedSlots: { customRender: 'action' },
+          dataIndex: 'status',
         },
       ],
       searchForm: {
@@ -605,48 +494,23 @@ export default {
     // 条件查询
     handleToSearchEnterprise (type) {
       this.pagination.current = 1
-      if (type == '1') {
-        this.currentTag==='1'
-        this.searchForm.regulator = 'ASIC'
-        if (this.searchForm.name) {
-          this.tableLoading = true
-          getSpecialTableList(this.searchForm).then(res => {
-            this.tableLoading = false
-            if (res.code===200) {
-              this.loadASICList = res.data
-              this.loadASICList = this.loadASICList.filter(value => {
-                return value.name===this.searchForm.name
-              })
-              this.pagination.total = this.loadASICList.length
-              this.loadASICList = this.loadASICList.slice((this.pagination.current-1)*10)
-            } else {
-              this.$message.error(res.msg)
-            }
-          })
-        } else {
-          this.getASICData(this.searchForm)
-        }
+      if (this.searchForm.name) {
+        this.tableLoading = true
+        getSpecialTableList(this.searchForm).then(res => {
+          this.tableLoading = false
+          if (res.code===200) {
+            this.loadASICList = res.data
+            this.loadASICList = this.loadASICList.filter(value => {
+              return value.name===this.searchForm.name
+            })
+            this.pagination.total = this.loadASICList.length
+            this.loadASICList = this.loadASICList.slice((this.pagination.current-1)*10)
+          } else {
+            this.$message.error(res.msg)
+          }
+        })
       } else {
-        this.currentTag==='2'
-        this.searchForm.regulator = 'St. Vincent'
-        if (this.searchForm.name) {
-          this.tableLoading = true
-          getSpecialTableList(this.searchForm).then(res => {
-            this.tableLoading = false
-            if (res.code===200) {
-              this.loadSTVList = res.data
-              this.loadSTVList = this.loadSTVList.filter(value => {
-                return value.name===this.searchForm.name
-              })
-              this.pagination.total = this.loadSTVList.length
-              this.loadSTVList = this.loadSTVList.slice((this.pagination.current-1)*10)
-            } else {
-              this.$message.error(res.msg)
-            }
-          })
-        } else {
-          this.getASICData(this.searchForm)
-        }
+        this.getASICData(this.searchForm)
       }
     },
     // 重置

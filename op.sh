@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 function execute()
 {
     $@
@@ -16,13 +17,8 @@ build()
 
 deploy()
 {
-    sudo mv dist /usr/share/nginx/html_box/dist.${GITHUB_REF#refs/heads/}.${GITHUB_SHA}
-    sudo ln -snf /usr/share/nginx/html_box/dist.${GITHUB_REF#refs/heads/}.${GITHUB_SHA}/*  /usr/share/nginx/html
-}
-
-test()
-{
-    python3 BSTests/test.py
+    sudo mv dist /usr/share/nginx/html_box/dist.${GITHUB_REF#refs/heads/}.${github.event.commits[0].message}.${GITHUB_SHA}
+    sudo ln -snf /usr/share/nginx/html_box/dist.${GITHUB_REF#refs/heads/}.${github.event.commits[0].message}.${GITHUB_SHA}/*  /usr/share/nginx/html
 }
 
 Main()

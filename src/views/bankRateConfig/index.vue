@@ -1,6 +1,6 @@
 <template>
   <div>
-    <!-- <h1>API汇率</h1> -->
+    <!-- <h1>Bank汇率</h1> -->
     <div class="table-page-search-wrapper">
       <a-form layout="inline" labelAlign="left">
         <a-row :gutter="24">
@@ -29,44 +29,61 @@
       @change="handleTableChange"
       bordered
     >
-      <span slot="enableda" slot-scope="text, record">
-        <a class="extend" v-if="!record.editDigts" @click="showEditDigits(record)">{{record.enableda}}</a>
+      <!-- pairs -->
+      <span slot="name" slot-scope="text,record">{{record.sourceCurrency}}{{record.targetCurrency}}</span>
+      <!-- providerName -->
+      <span slot="providerName" slot-scope="text, record">
+        <a class="extend" v-if="!record.editIpt" @click="showEditDepositMargin(record)">{{record.providerName}}</a>
         <span v-else>
-          <a-input style="width:100px" ref="digitsInput" type="number" min="0" placeholder="digits" v-model="record.enableda" @change="digits(record)" @pressEnter="digitsMove(record)" @blur="digitsMove(record)"></a-input>
+          <a-input style="width:100px" ref="iptInput" placeholder="providerName" v-model="record.providerName" @pressEnter="digitsMove(record)" @blur="sourceData(record,'editIpt')"></a-input>
         </span>
       </span>
-      <span slot="enabledi" slot-scope="text, record">
-        <a v-if="record.enabledi==='异常'" @click="dialog(record)">{{record.enabledi}}</a>
-        <a v-else style="color:#10a365">{{record.enabledi}}</a>
+      <!-- status -->
+      <span slot="status" slot-scope="text, record">
+        <a v-if="record.status==='Pending'" style="color:#f00" @click="dialog(record)">异常</a>
+        <a v-else-if="record.status==='Update Failed'" style="color:#faad14" @click="()=>$message.warning('更新失败,请联系IT介入处理！')">更新失败</a>
+        <a v-else style="color:#10a365">正常</a>
       </span>
     </a-table>
-    <!-- 异常 -->
+    <!-- 异常处理 -->
     <a-modal
       :title="title"
       :visible="visibleASIC"
       :confirm-loading="confirmLoadingASIC"
       @ok="handleOkASIC"
       @cancel="handleCancelASIC"
-      v-if="commonList"
+      v-if="detailInfo"
     >
-      <h3>AUDIDR</h3>
+      <h3>{{record.sourceCurrency}}{{record.targetCurrency}}</h3>
       <a-divider class="no-mg" />
       <ul class="err-md">
         <li>
-          <span class="nm-l">现使用API汇率：</span>
-          <span class="nm-r">11159.92</span>
+          <span class="nm-l">入金汇率：</span>
+          <span class="nm-r">{{detailInfo.lastRate.depositRate}}</span>
         </li>
         <li>
-          <span class="nm-l">待更新API汇率：</span>
-          <span class="nm-r">11159.92</span>
+          <span class="nm-l">待更新入金汇率：</span>
+          <span class="nm-r">{{detailInfo.pendingRate.depositRate}}</span>
         </li>
         <li>
           <span class="nm-l">变化率：</span>
-          <span class="nm-r">3%</span>
+          <span class="nm-r">{{detailInfo.changeRateIpt}}</span>
+        </li>
+        <li>
+          <span class="nm-l">出金汇率：</span>
+          <span class="nm-r">{{detailInfo.lastRate.withdrawalRate}}</span>
+        </li>
+        <li>
+          <span class="nm-l">待更新出金汇率：</span>
+          <span class="nm-r">{{detailInfo.pendingRate.withdrawalRate}}</span>
+        </li>
+        <li>
+          <span class="nm-l">变化率：</span>
+          <span class="nm-r">{{detailInfo.changeRateOpt}}</span>
         </li>
         <li>
           <span class="nm-l">变化率阈值：</span>
-          <a-input min="0" class="nm-input" type="number" placeholder="请输入阈值" suffix="%"></a-input>
+          <a-input min="0" class="nm-input" type="number" v-model="detailInfo.exchangeRateConfig.rateChangeAlarm" placeholder="请输入阈值" suffix="%"></a-input>
         </li>
       </ul>
       <h3>处理更新方法</h3>
@@ -75,12 +92,9 @@
         <li>
           <span class="nm-l">处理方法：</span>
           <div>
-            <a-select placeholder="请选择" style="width: 150px">
-              <a-select-option value="update">
-                更新
-              </a-select-option>
-              <a-select-option value="ignor">
-                忽略该次更新
+            <a-select placeholder="请选择" style="width: 150px" v-model="handleMethod">
+              <a-select-option :value="item" v-for="(item,index) in detailInfo.handleTypes" :key="index">
+                {{item}}
               </a-select-option>
             </a-select>
           </div>
@@ -92,11 +106,10 @@
 
 <script>
 import {
-  getSpecialTableList,
-  getSpecialCommon,
-  getSpecialTableListDetail,
-  getSpecialTableListAdd,
-  getSpecialTableListUpdate,
+  getBankRateList,
+  getBankRateListUpdate,
+  getBankRateListDetail,
+  getBankRateUpdate
 } from '@/api/api'
 import { getPointNumber } from '@/utils/util'
 export default {
@@ -114,107 +127,46 @@ export default {
           title: 'Pairs',
           align: 'center',
           dataIndex: 'name',
+          scopedSlots: { customRender: 'name' },
         },
         {
-          title: 'Digits',
+          title: '银行入金',
           align: 'center',
-          dataIndex: 'enableda',
-          scopedSlots: { customRender: 'enableda' },
+          dataIndex: 'depositRate',
         },
         {
-          title: '基准入金',
+          title: '银行出金',
           align: 'center',
-          dataIndex: 'enabledb',
+          dataIndex: 'withdrawalRate',
         },
         {
-          title: '入金点差',
+          title: '来源',
           align: 'center',
-          dataIndex: 'enabledc',
-        },
-        {
-          title: 'API Rate',
-          align: 'center',
-          dataIndex: 'enabledd',
-        },
-        {
-          title: '出金点差',
-          align: 'center',
-          dataIndex: 'enablede',
-        },
-        {
-          title: '基准出金',
-          align: 'center',
-          dataIndex: 'enabledf',
-        },
-        {
-          title: 'Spread Rate',
-          align: 'center',
-          dataIndex: 'enabledg',
-          customRender: text => getPointNumber(text*100,0) + '%'
+          dataIndex: 'providerName',
+          scopedSlots: { customRender: 'providerName' },
         },
         {
           title: 'Last Update',
           align: 'center',
-          dataIndex: 'enabledh',
+          dataIndex: 'updated',
         },
         {
           title: '状态',
           align: 'center',
-          dataIndex: 'enabledi',
-          scopedSlots: { customRender: 'enabledi' },
+          dataIndex: 'status',
+          scopedSlots: { customRender: 'status' },
         },
       ],
       searchForm: {
         regulator: 'ASIC',
         name: undefined,
       },
-      loadASICList: [
-        {
-          id: '1',
-          name: 'AUDCNY',
-          enableda: 4,
-          enabledb: 4.9815,
-          enabledc: 10,
-          enabledd: 4.9815,
-          enablede: -10,
-          enabledf: 4.9825,
-          enabledg: 0.02,
-          enabledh: '2021-04-12 07:20:00',
-          enabledi: '正常',
-          editDigts: false,
-        },
-        {
-          id: '2',
-          name: 'AUDCNY',
-          enableda: 2,
-          enabledb: 4.98,
-          enabledc: 10,
-          enabledd: 4.98,
-          enablede: -10,
-          enabledf: 4.98,
-          enabledg: 0.02,
-          enabledh: '2021-04-12 07:20:00',
-          enabledi: '异常',
-          editDigts: false,
-        },
-      ],
-      selectedItems: [],
+      loadASICList: [],
+      remarkList: [],
       title: '异常处理',
       record: null,
       visibleASIC: false,
       confirmLoadingASIC: false,
-      coinTypeList: [
-        {
-          paymentGateway: {id: undefined},
-          extraScore: '',
-        },
-      ],
-      balanceAlarmList: [
-        {
-          metaTraderServerType: undefined,
-          account: ''
-        }
-      ],
       uploadBlackParams: {
         blacklistType: 'Black',
         paymentGatewayId: ''
@@ -222,7 +174,6 @@ export default {
       commonList: null,
       detailInfo: null,
       tableLoading: false,
-      isAdd: false,
       pagination: {
         current: 1,
         pageSize: 10,
@@ -240,47 +191,40 @@ export default {
         file: null
       },
       formData: new FormData(),
+      handleMethod: undefined
     };
   },
-  computed: {
-  },
   created () {
-    this.getCommons()
-    // this.getASICData()
+    this.getASICData()
   },
   methods: {
-    // 编辑digits
-    showEditDigits (record) {
-      record.editDigts = true
+    // 编辑来源
+    showEditDepositMargin (record) {
+      record.editIpt = true
       setTimeout(() => {
-        this.$refs.digitsInput.focus()
+        this.$refs.iptInput.focus()
       }, 0)
     },
-    digits (record) {
-      console.log(record)
-      record.enabledb = getPointNumber(record.enabledb,record.enableda)
-      record.enabledd = getPointNumber(record.enabledd,record.enableda)
-      record.enabledf = getPointNumber(record.enabledf,record.enableda)
+    // 失去焦点返回原始数据值
+    sourceData (record, params) {
+      record.editIpt = false
+      this.loadASICList = JSON.parse(JSON.stringify(this.remarkList))
     },
-    // 移出编辑digits
-    digitsMove (record) {
-      record.editDigts = false
-      console.log(record)
-    },
-    // 获取国家、汇率、手续费类型、黑白名单类型、启用枚举、余额报警颜色
-    getCommons () {
-      getSpecialCommon().then(res => {
-        console.log('common',res.data)
-        if (res.code===200) {
-          this.commonList = res.data
+    // 确认编辑
+    updateItem (params) {
+      getBankRateListUpdate(params).then(res => {
+        if (res.code === 200) {
+          this.$message.success('更新成功')
+          this.getASICData()
         } else {
-          this.$message.error(res.msg)
+          this.$message.error('更新失败')
+          this.getASICData()
         }
       })
     },
-    // 选择国家
-    handleChange(selectedItems) {
-      this.selectedItems = selectedItems;
+    // 保存编辑
+    digitsMove (record) {
+      this.updateItem(record)
     },
     // 分页查询
     handleTableChange (pagination) {
@@ -292,15 +236,20 @@ export default {
       this.pagination.current = 1
       if (this.searchForm.name) {
         this.tableLoading = true
-        getSpecialTableList(this.searchForm).then(res => {
+        getBankRateList(this.searchForm).then(res => {
           this.tableLoading = false
           if (res.code===200) {
             this.loadASICList = res.data
             this.loadASICList = this.loadASICList.filter(value => {
-              return value.name===this.searchForm.name
+              let rems = [value.sourceCurrency,value.targetCurrency]
+              return rems.includes(this.searchForm.name)
             })
             this.pagination.total = this.loadASICList.length
+            res.data.forEach(item => {
+              item.editIpt = false
+            })
             this.loadASICList = this.loadASICList.slice((this.pagination.current-1)*10)
+            this.remarkList = JSON.parse(JSON.stringify(this.loadASICList))
           } else {
             this.$message.error(res.msg)
           }
@@ -330,11 +279,15 @@ export default {
     // 加载数据
     getASICData() {
       this.tableLoading = true
-      getSpecialTableList().then(res => {
+      getBankRateList().then(res => {
         this.tableLoading = false
         if (res.code===200) {
           this.pagination.total = res.data.length
+          res.data.forEach(item => {
+            item.editIpt = false
+          })
           this.loadASICList = res.data.slice((this.pagination.current-1)*10)
+          this.remarkList = JSON.parse(JSON.stringify(this.loadASICList))
         } else {
           this.$message.error(res.msg)
         }
@@ -342,73 +295,56 @@ export default {
     },
     // 获取详情
     getDetail (params) {
-      getSpecialTableListDetail(params).then(res => {
-        console.log('detail',res)
+      getBankRateListDetail(params).then(res => {
         if (res.code === 200) {
           this.detailInfo = res.data
-          let nullBalance = [
-            {
-              metaTraderServerType: undefined,
-              account: ''
-            }
-          ]
-          let nullCoin = [
-            {
-              paymentGateway: {id: undefined},
-              extraScore: '',
-            },
-          ]
-          this.addEditParams.jsonString = res.data
-          this.coinTypeList = res.data.depositSpecialRankPaymentGateways.length===0 ? nullCoin : res.data.depositSpecialRankPaymentGateways
-          this.balanceAlarmList = res.data.ibAccounts.length===0? nullBalance : res.data.ibAccounts
-          this.selectedItems = this.addEditParams.jsonString.countries==='' ? [] : this.addEditParams.jsonString.countries.split(',')
+          this.detailInfo.changeRateIpt = getPointNumber((this.detailInfo.lastRate.depositRate - this.detailInfo.pendingRate.depositRate) / this.detailInfo.lastRate.depositRate,2) + '%'
+          this.detailInfo.changeRateOpt = getPointNumber((this.detailInfo.lastRate.withdrawalRate - this.detailInfo.pendingRate.withdrawalRate) / this.detailInfo.lastRate.withdrawalRate,2) + '%'
+          this.detailInfo.exchangeRateConfig.rateChangeAlarm = this.detailInfo.exchangeRateConfig.rateChangeAlarm * 100
+          console.log('detail',this.detailInfo)
         } else {
           this.$message.error(res.msg)
         }
       })
     },
-    // 特例配置
+    // 异常处理
     dialog (record) {
-      this.isAdd = false
-      this.uploadBlackParams.paymentGatewayId = record.id
       this.record = record
       this.getDetail(record.id)
       this.title = '异常处理'
       this.visibleASIC = true
     },
-    // 确认更新特例配置
+    // 确认更新异常处理
     handleOkASIC () {
-      this.visibleASIC = false
+      let params = {
+        pendingRate: this.detailInfo.pendingRate,
+        exchangeRateConfig: JSON.parse(JSON.stringify(this.detailInfo.exchangeRateConfig)),
+        handleType: this.handleMethod,
+      }
+      if (!params.handleType) {
+        this.$message.error('请选择处理方法！')
+        return
+      }
+      this.confirmLoadingASIC = true
+      params.exchangeRateConfig.rateChangeAlarm /= 100
+      console.log(params)
+      getBankRateUpdate(params).then(res => {
+        console.log('更新成功',res)
+        if (res.code === 200) {
+          this.$message.success('更新成功')
+          this.getASICData()
+          this.handleCancelASIC()
+        } else {
+          this.$message.error('更新失败')
+          this.confirmLoadingASIC = false
+        }
+      })
     },
-    // 取消特例配置更新
+    // 取消编辑异常处理
     handleCancelASIC () {
       this.confirmLoadingASIC = false
       this.visibleASIC = false
-      this.addEditParams = {
-        jsonString: {
-          name: '',
-          regulator: '',
-          countries: '',
-          ibAccounts: [],
-          enabled: 'Yes',
-          depositSpecialRankPaymentGateways: [],
-        },
-        file: null
-      }
-      this.coinTypeList = [
-        {
-          paymentGateway: {id: undefined},
-          extraScore: '',
-        },
-      ]
-      this.balanceAlarmList = [
-        {
-          metaTraderServerType: undefined,
-          account: ''
-        }
-      ]
-      this.selectedItems = []
-      this.formData = new FormData()
+      this.handleMethod = undefined
     },
   },
 };
@@ -479,10 +415,5 @@ export default {
       width: 150px;
     }
   }
-}
-</style>
-<style>
-.upload-re .ant-upload-list{
-  display: none !important;
 }
 </style>

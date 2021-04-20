@@ -14,11 +14,11 @@
         <!-- <a-menu-item key="/exchangeRateConfig" @click="hrefTo('/exchangeRateConfig')">
           <a-icon type="funnel-plot" />
           <span>汇率深度</span>
-        </a-menu-item>
+        </a-menu-item> -->
         <a-menu-item key="/bankRateConfig" @click="hrefTo('/bankRateConfig')">
           <a-icon type="bank" />
           <span>银行汇率</span>
-        </a-menu-item> -->
+        </a-menu-item>
         <a-menu-item key="/apiRateConfig" @click="hrefTo('/apiRateConfig')">
           <a-icon type="read" />
           <span>API汇率</span>

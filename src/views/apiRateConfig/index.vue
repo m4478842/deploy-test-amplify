@@ -29,17 +29,34 @@
       @change="handleTableChange"
       bordered
     >
+      <!-- pairs -->
+      <span slot="name" slot-scope="text,record">{{record.sourceCurrency}}{{record.targetCurrency}}</span>
       <!-- digits -->
-      <span slot="enableda" slot-scope="text, record">
-        <a class="extend" v-if="!record.editDigts" @click="showEditDigits(record)">{{record.enableda}}</a>
+      <span slot="digits" slot-scope="text, record">
+        <a class="extend" v-if="!record.editDigts" @click="showEditDigits(record)">{{record.digits}}</a>
         <span v-else>
-          <a-input style="width:100px" ref="digitsInput" type="number" min="0" placeholder="digits" v-model="record.enableda" @change="digits(record)" @pressEnter="digitsMove(record)" @blur="digitsMove(record)"></a-input>
+          <a-input style="width:100px" ref="digitsInput" type="number" min="0" placeholder="digits" v-model="record.digits" @pressEnter="digitsMove(record)" @blur="sourceData(record,'editDigts')"></a-input>
+        </span>
+      </span>
+      <!-- depositMargin -->
+      <span slot="depositMargin" slot-scope="text, record">
+        <a class="extend" v-if="!record.editIpt" @click="showEditDepositMargin(record)">{{record.depositMargin}}</a>
+        <span v-else>
+          <a-input style="width:100px" ref="iptInput" type="number" placeholder="depositMargin" v-model="record.depositMargin" @pressEnter="digitsMove(record)" @blur="sourceData(record,'editIpt')"></a-input>
+        </span>
+      </span>
+      <!-- withdrawalMargin -->
+      <span slot="withdrawalMargin" slot-scope="text, record">
+        <a class="extend" v-if="!record.editOpt" @click="showEditWithdrawalMargin(record)">{{record.withdrawalMargin}}</a>
+        <span v-else>
+          <a-input style="width:100px" ref="optInput" type="number" placeholder="withdrawalMargin" v-model="record.withdrawalMargin" @pressEnter="digitsMove(record)" @blur="sourceData(record,'editOpt')"></a-input>
         </span>
       </span>
       <!-- status -->
-      <span slot="enabledi" slot-scope="text, record">
-        <a v-if="record.enabledi==='异常'" @click="dialog(record)">{{record.enabledi}}</a>
-        <a v-else style="color:#10a365">{{record.enabledi}}</a>
+      <span slot="status" slot-scope="text, record">
+        <a v-if="record.status==='Pending'" style="color:#f00" @click="dialog(record)">异常</a>
+        <a v-else-if="record.status==='Update Failed'" style="color:#faad14" @click="()=>$message.warning('更新失败,请联系IT介入处理！')">更新失败</a>
+        <a v-else style="color:#10a365">正常</a>
       </span>
     </a-table>
     <!-- 异常处理 -->
@@ -49,26 +66,26 @@
       :confirm-loading="confirmLoadingASIC"
       @ok="handleOkASIC"
       @cancel="handleCancelASIC"
-      v-if="commonList"
+      v-if="detailInfo"
     >
-      <h3>AUDIDR</h3>
+      <h3>{{record.sourceCurrency}}{{record.targetCurrency}}</h3>
       <a-divider class="no-mg" />
       <ul class="err-md">
         <li>
           <span class="nm-l">现使用API汇率：</span>
-          <span class="nm-r">11159.92</span>
+          <span class="nm-r">{{detailInfo.lastRate.rate}}</span>
         </li>
         <li>
           <span class="nm-l">待更新API汇率：</span>
-          <span class="nm-r">11159.92</span>
+          <span class="nm-r">{{detailInfo.pendingRate.rate}}</span>
         </li>
         <li>
           <span class="nm-l">变化率：</span>
-          <span class="nm-r">3%</span>
+          <span class="nm-r">{{detailInfo.changeRate}}</span>
         </li>
         <li>
           <span class="nm-l">变化率阈值：</span>
-          <a-input min="0" class="nm-input" type="number" placeholder="请输入阈值" suffix="%"></a-input>
+          <a-input min="0" class="nm-input" type="number" v-model="detailInfo.exchangeRateConfig.rateChangeAlarm" placeholder="请输入阈值" suffix="%"></a-input>
         </li>
       </ul>
       <h3>处理更新方法</h3>
@@ -77,12 +94,9 @@
         <li>
           <span class="nm-l">处理方法：</span>
           <div>
-            <a-select placeholder="请选择" style="width: 150px">
-              <a-select-option value="update">
-                更新
-              </a-select-option>
-              <a-select-option value="ignor">
-                忽略该次更新
+            <a-select placeholder="请选择" style="width: 150px" v-model="handleMethod">
+              <a-select-option :value="item" v-for="(item,index) in detailInfo.handleTypes" :key="index">
+                {{item}}
               </a-select-option>
             </a-select>
           </div>
@@ -94,11 +108,10 @@
 
 <script>
 import {
-  getSpecialTableList,
-  getSpecialCommon,
-  getSpecialTableListDetail,
-  getSpecialTableListAdd,
-  getSpecialTableListUpdate,
+  getAPIRateList,
+  getAPIRateListUpdate,
+  getAPIRateListDetail,
+  getAPIRateUpdate
 } from '@/api/api'
 import { getPointNumber } from '@/utils/util'
 export default {
@@ -116,107 +129,68 @@ export default {
           title: 'Pairs',
           align: 'center',
           dataIndex: 'name',
+          scopedSlots: { customRender: 'name' },
         },
         {
           title: 'Digits',
           align: 'center',
-          dataIndex: 'enableda',
-          scopedSlots: { customRender: 'enableda' },
+          dataIndex: 'digits',
+          scopedSlots: { customRender: 'digits' },
         },
         {
           title: '基准入金',
           align: 'center',
-          dataIndex: 'enabledb',
+          dataIndex: 'ipt',
         },
         {
           title: '入金点差',
           align: 'center',
-          dataIndex: 'enabledc',
+          dataIndex: 'depositMargin',
+          scopedSlots: { customRender: 'depositMargin' },
         },
         {
           title: 'API Rate',
           align: 'center',
-          dataIndex: 'enabledd',
+          dataIndex: 'rate',
         },
         {
           title: '出金点差',
           align: 'center',
-          dataIndex: 'enablede',
+          dataIndex: 'withdrawalMargin',
+          scopedSlots: { customRender: 'withdrawalMargin' },
         },
         {
           title: '基准出金',
           align: 'center',
-          dataIndex: 'enabledf',
+          dataIndex: 'opt',
         },
         {
           title: 'Spread Rate',
           align: 'center',
-          dataIndex: 'enabledg',
-          customRender: text => getPointNumber(text*100,0) + '%'
+          dataIndex: 'srt',
         },
         {
           title: 'Last Update',
           align: 'center',
-          dataIndex: 'enabledh',
+          dataIndex: 'updated',
         },
         {
           title: '状态',
           align: 'center',
-          dataIndex: 'enabledi',
-          scopedSlots: { customRender: 'enabledi' },
+          dataIndex: 'status',
+          scopedSlots: { customRender: 'status' },
         },
       ],
       searchForm: {
         regulator: 'ASIC',
         name: undefined,
       },
-      loadASICList: [
-        {
-          id: '1',
-          name: 'AUDCNY',
-          enableda: 4,
-          enabledb: 4.9888,
-          enabledc: 10,
-          enabledd: 4.9815,
-          enablede: -10,
-          enabledf: 4.9825,
-          enabledg: 0.02,
-          enabledh: '2021-04-12 07:20:00',
-          enabledi: '正常',
-          editDigts: false,
-        },
-        {
-          id: '2',
-          name: 'AUDCNY',
-          enableda: 2,
-          enabledb: 4.98,
-          enabledc: 10,
-          enabledd: 4.98,
-          enablede: -10,
-          enabledf: 4.98,
-          enabledg: 0.02,
-          enabledh: '2021-04-12 07:20:00',
-          enabledi: '异常',
-          editDigts: false,
-        },
-      ],
-      selectedItems: [],
+      loadASICList: [],
+      remarkList: [],
       title: '异常处理',
       record: null,
       visibleASIC: false,
       confirmLoadingASIC: false,
-      coinTypeList: [
-        {
-          paymentGateway: {id: undefined},
-          extraScore: '',
-        },
-      ],
-      balanceAlarmList: [
-        {
-          metaTraderServerType: undefined,
-          account: ''
-        }
-      ],
       uploadBlackParams: {
         blacklistType: 'Black',
         paymentGatewayId: ''
@@ -224,7 +198,6 @@ export default {
       commonList: null,
       detailInfo: null,
       tableLoading: false,
-      isAdd: false,
       pagination: {
         current: 1,
         pageSize: 10,
@@ -242,46 +215,74 @@ export default {
         file: null
       },
       formData: new FormData(),
+      handleMethod: undefined
     };
   },
-  computed: {
+  watch: {
+    loadASICList: {
+      handler (newV,oldV) {
+        newV.forEach((item,index) => {
+          item.rate = getPointNumber(this.remarkList[index].rate,item.digits)
+          let localIpt = item.depositMargin/(10**item.digits)
+          let localOpt = item.withdrawalMargin/(10**item.digits)
+          console.log(Number(item.rate),localIpt,localOpt,(Number(item.rate) + Number(localIpt)))
+          item.ipt = getPointNumber((Number(item.rate)*(10**item.digits) + Number(localIpt)*(10**item.digits))/(10**item.digits),item.digits)
+          item.opt = getPointNumber((Number(item.rate)*(10**item.digits) + Number(localOpt)*(10**item.digits))/(10**item.digits),item.digits)
+          item.srt = getPointNumber((item.depositMargin - item.withdrawalMargin)/item.rate * 100,2) + '%'
+        })
+      },
+      deep:true
+    }
   },
   created () {
-    this.getCommons()
-    // this.getASICData()
+    this.getASICData()
   },
   methods: {
-    // 编辑digits
+    // 编辑digits、deposit Margin、withdrawal Margin
     showEditDigits (record) {
       record.editDigts = true
       setTimeout(() => {
         this.$refs.digitsInput.focus()
       }, 0)
     },
-    // digits值变化时，与其相关的值做相应变化
-    digits (record) {
-      record.enabledb = getPointNumber(record.enabledb,record.enableda)
-      record.enabledd = getPointNumber(record.enabledd,record.enableda)
-      record.enabledf = getPointNumber(record.enabledf,record.enableda)
+    showEditDepositMargin (record) {
+      record.editIpt = true
+      setTimeout(() => {
+        this.$refs.iptInput.focus()
+      }, 0)
     },
-    // 保存编辑后的digits
-    digitsMove (record) {
-      record.editDigts = false
+    showEditWithdrawalMargin (record) {
+      record.editOpt = true
+      setTimeout(() => {
+        this.$refs.optInput.focus()
+      }, 0)
     },
-    // 获取国家、汇率、手续费类型、黑白名单类型、启用枚举、余额报警颜色
-    getCommons () {
-      getSpecialCommon().then(res => {
-        console.log('common',res.data)
-        if (res.code===200) {
-          this.commonList = res.data
+    // 失去焦点返回原始数据值
+    sourceData (record, params) {
+      if (params === 'editDigts') {
+        record.editDigts = false
+      } else if (params === 'editIpt') {
+        record.editIpt = false
+      } else {
+        record.editOpt = false
+      }
+      this.loadASICList = JSON.parse(JSON.stringify(this.remarkList))
+    },
+    // 确认编辑
+    updateItem (params) {
+      getAPIRateListUpdate(params).then(res => {
+        if (res.code === 200) {
+          this.$message.success('更新成功')
+          this.getASICData()
         } else {
-          this.$message.error(res.msg)
+          this.$message.error('更新失败')
+          this.getASICData()
         }
       })
     },
-    // 选择国家
-    handleChange(selectedItems) {
-      this.selectedItems = selectedItems;
+    // 保存编辑
+    digitsMove (record) {
+      this.updateItem(record)
     },
     // 分页查询
     handleTableChange (pagination) {
@@ -293,15 +294,27 @@ export default {
       this.pagination.current = 1
       if (this.searchForm.name) {
         this.tableLoading = true
-        getSpecialTableList(this.searchForm).then(res => {
+        getAPIRateList(this.searchForm).then(res => {
           this.tableLoading = false
           if (res.code===200) {
             this.loadASICList = res.data
             this.loadASICList = this.loadASICList.filter(value => {
-              return value.name===this.searchForm.name
+              let rems = [value.sourceCurrency,value.targetCurrency]
+              return rems.includes(this.searchForm.name)
             })
             this.pagination.total = this.loadASICList.length
+            res.data.forEach(item => {
+              let localIpt = item.depositMargin/(10**item.digits)
+              let localOpt = item.withdrawalMargin/(10**item.digits)
+              item.ipt = getPointNumber((Number(item.rate) + Number(localIpt)),item.digits)
+              item.opt = getPointNumber((Number(item.rate) + Number(localOpt)),item.digits)
+              item.srt = getPointNumber((item.depositMargin - item.withdrawalMargin)/item.rate,2) * 100 + '%'
+              item.editDigts = false
+              item.editIpt = false
+              item.editOpt = false
+            })
             this.loadASICList = this.loadASICList.slice((this.pagination.current-1)*10)
+            this.remarkList = JSON.parse(JSON.stringify(this.loadASICList))
           } else {
             this.$message.error(res.msg)
           }
@@ -331,11 +344,22 @@ export default {
     // 加载数据
     getASICData() {
       this.tableLoading = true
-      getSpecialTableList().then(res => {
+      getAPIRateList().then(res => {
         this.tableLoading = false
         if (res.code===200) {
           this.pagination.total = res.data.length
+          res.data.forEach(item => {
+            let localIpt = item.depositMargin/(10**item.digits)
+            let localOpt = item.withdrawalMargin/(10**item.digits)
+            item.ipt = getPointNumber((Number(item.rate) + Number(localIpt)),item.digits)
+            item.opt = getPointNumber((Number(item.rate) + Number(localOpt)),item.digits)
+            item.srt = getPointNumber((item.depositMargin - item.withdrawalMargin)/item.rate,2) * 100 + '%'
+            item.editDigts = false
+            item.editIpt = false
+            item.editOpt = false
+          })
           this.loadASICList = res.data.slice((this.pagination.current-1)*10)
+          this.remarkList = JSON.parse(JSON.stringify(this.loadASICList))
         } else {
           this.$message.error(res.msg)
         }
@@ -343,73 +367,55 @@ export default {
     },
     // 获取详情
     getDetail (params) {
-      getSpecialTableListDetail(params).then(res => {
+      getAPIRateListDetail(params).then(res => {
         console.log('detail',res)
         if (res.code === 200) {
           this.detailInfo = res.data
-          let nullBalance = [
-            {
-              metaTraderServerType: undefined,
-              account: ''
-            }
-          ]
-          let nullCoin = [
-            {
-              paymentGateway: {id: undefined},
-              extraScore: '',
-            },
-          ]
-          this.addEditParams.jsonString = res.data
-          this.coinTypeList = res.data.depositSpecialRankPaymentGateways.length===0 ? nullCoin : res.data.depositSpecialRankPaymentGateways
-          this.balanceAlarmList = res.data.ibAccounts.length===0? nullBalance : res.data.ibAccounts
-          this.selectedItems = this.addEditParams.jsonString.countries==='' ? [] : this.addEditParams.jsonString.countries.split(',')
+          this.detailInfo.changeRate = getPointNumber((this.detailInfo.lastRate.rate - this.detailInfo.pendingRate.rate) / this.detailInfo.lastRate.rate,2) + '%'
+          this.detailInfo.exchangeRateConfig.rateChangeAlarm = this.detailInfo.exchangeRateConfig.rateChangeAlarm * 100
         } else {
           this.$message.error(res.msg)
         }
       })
     },
-    // 特例配置
+    // 异常处理
     dialog (record) {
-      this.isAdd = false
-      this.uploadBlackParams.paymentGatewayId = record.id
       this.record = record
       this.getDetail(record.id)
       this.title = '异常处理'
       this.visibleASIC = true
     },
-    // 确认更新特例配置
+    // 确认更新异常处理
     handleOkASIC () {
-      this.visibleASIC = false
+      let params = {
+        pendingRate: this.detailInfo.pendingRate,
+        exchangeRateConfig: JSON.parse(JSON.stringify(this.detailInfo.exchangeRateConfig)),
+        handleType: this.handleMethod,
+      }
+      if (!params.handleType) {
+        this.$message.error('请选择处理方法！')
+        return
+      }
+      this.confirmLoadingASIC = true
+      params.exchangeRateConfig.rateChangeAlarm /= 100
+      console.log(params)
+      getAPIRateUpdate(params).then(res => {
+        console.log('更新成功',res)
+        if (res.code === 200) {
+          this.$message.success('更新成功')
+          this.getASICData()
+          this.handleCancelASIC()
+        } else {
+          this.$message.error('更新失败')
+          this.confirmLoadingASIC = false
+        }
+      })
     },
-    // 取消特例配置更新
+    // 取消编辑异常处理
     handleCancelASIC () {
       this.confirmLoadingASIC = false
       this.visibleASIC = false
-      this.addEditParams = {
-        jsonString: {
-          name: '',
-          regulator: '',
-          countries: '',
-          ibAccounts: [],
-          enabled: 'Yes',
-          depositSpecialRankPaymentGateways: [],
-        },
-        file: null
-      }
-      this.coinTypeList = [
-        {
-          paymentGateway: {id: undefined},
-          extraScore: '',
-        },
-      ]
-      this.balanceAlarmList = [
-        {
-          metaTraderServerType: undefined,
-          account: ''
-        }
-      ]
-      this.selectedItems = []
-      this.formData = new FormData()
+      this.handleMethod = undefined
     },
   },
 };
@@ -480,10 +486,5 @@ export default {
       width: 150px;
     }
   }
-}
-</style>
-<style>
-.upload-re .ant-upload-list{
-  display: none !important;
 }
 </style>

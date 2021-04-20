@@ -69,8 +69,32 @@ const specialRankDownload = function downFile(parameter){
     responseType: 'blob'
   })
 };
+// API汇率列表
+const getAPIRateList = (params) => getAction('/admin/api-exchange-rate',params);
+// API汇率更新
+const getAPIRateListUpdate = (params) => postAction('/admin/api-exchange-rate',params);
+// API汇率详情
+const getAPIRateListDetail = (params) => getAction(`/admin/api-exchange-rate/pending-handle/${params}`);
+// API汇率更新
+const getAPIRateUpdate = (params) => postAction('/admin/api-exchange-rate/pending-handle',params);
+// Bank汇率列表
+const getBankRateList = (params) => getAction('/admin/bank-exchange-rate',params);
+// Bank汇率更新
+const getBankRateListUpdate = (params) => postAction('/admin/bank-exchange-rate',params);
+// Bank汇率详情
+const getBankRateListDetail = (params) => getAction(`/admin/bank-exchange-rate/pending-handle/${params}`);
+// API汇率更新
+const getBankRateUpdate = (params) => postAction('/admin/bank-exchange-rate/pending-handle',params);
 
 export {
+  getBankRateUpdate,
+  getBankRateListDetail,
+  getBankRateListUpdate,
+  getBankRateList,
+  getAPIRateUpdate,
+  getAPIRateListDetail,
+  getAPIRateListUpdate,
+  getAPIRateList,
   specialRankDownload,
   getSpecialTableListDel,
   getSpecialTableListUpdate,
