@@ -223,10 +223,8 @@ export default {
       handler (newV,oldV) {
         newV.forEach((item,index) => {
           item.rate = getPointNumber(this.remarkList[index].rate,item.digits)
-          let localIpt = item.depositMargin/(10**item.digits)
-          let localOpt = item.withdrawalMargin/(10**item.digits)
-          item.ipt = getPointNumber((Number(item.rate)*(10**item.digits) + Number(localIpt)*(10**item.digits))/(10**item.digits),item.digits)
-          item.opt = getPointNumber((Number(item.rate)*(10**item.digits) + Number(localOpt)*(10**item.digits))/(10**item.digits),item.digits)
+          item.ipt = getPointNumber((Math.ceil((item.rate)*(10**item.digits)) + Number(item.depositMargin))/(10**item.digits),item.digits)
+          item.opt = getPointNumber((Math.ceil((item.rate)*(10**item.digits)) + Number(item.withdrawalMargin))/(10**item.digits),item.digits)
           item.srt = getPointNumber((item.depositMargin - item.withdrawalMargin)/item.rate * 100,2) + '%'
         })
       },
