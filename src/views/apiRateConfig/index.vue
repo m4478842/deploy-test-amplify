@@ -328,6 +328,7 @@ export default {
           name: undefined,
         },
         this.pagination.current = 1
+        this.pagination.pageNo = 1
         this.getASICData(this.searchForm)
       } else {
         this.searchForm = {

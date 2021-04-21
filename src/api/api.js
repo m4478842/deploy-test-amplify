@@ -88,9 +88,12 @@ const getBankRateUpdate = (params) => postAction('/admin/bank-exchange-rate/pend
 // 汇率深度列表
 const exchangeRate = (params) => postAction('/admin/exchange-rate-spread-level/query',params);
 // 汇率深度详情
-const exchangeRateDetail = (params) => getAction(`/admin/exchange-rate-spread-level/${params}`)
+const exchangeRateDetail = (params) => getAction(`/admin/exchange-rate-spread-level/${params}`);
+// 汇率深度更新
+const exchangeRateUpdate = (params) => postAction('/admin/exchange-rate-spread-level',params);
 
 export {
+  exchangeRateUpdate,
   exchangeRateDetail,
   exchangeRate,
   getBankRateUpdate,

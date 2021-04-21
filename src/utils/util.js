@@ -312,9 +312,6 @@ export function getArrItem(value, arr) {
  */
 export function getPointNumber (num, n) {
   num = Number(num)
-  if(typeof num != 'number'){
-      return false
-  };
   num = num.toString()
   var result = ""
   var zeroResult = function(n){
