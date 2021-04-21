@@ -17,7 +17,13 @@ jobs:
         pytest BSTests/test.py --html=/home/ec2-user/reports/${GITHUB_REF#refs/heads/}.${GITHUB_SHA}.report.html 
     - name: Print the report
       if: always() # shell: bash
+      # run: |
+      #   value=`cat /home/ec2-user/reports/${GITHUB_REF#refs/heads/}.${GITHUB_SHA}.report.html`
+      #   echo The result is $value
+      #   echo https://www.runoob.com/runcode
       run: |
-        value=`cat /home/ec2-user/reports/${GITHUB_REF#refs/heads/}.${GITHUB_SHA}.report.html`
-        echo The result is $value
-        echo https://www.runoob.com/runcode
+        cd /home/ec2-user/reports
+        git add .
+        git commit -m '${GITHUB_REF#refs/heads/}.${GITHUB_SHA}'
+        git push
+        echo http://htmlpreview.github.io/?https://github.com/wangcong-gzkj/reports/blob/main/${GITHUB_REF#refs/heads/}.${GITHUB_SHA}.report.html

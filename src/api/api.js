@@ -83,10 +83,16 @@ const getBankRateList = (params) => getAction('/admin/bank-exchange-rate',params
 const getBankRateListUpdate = (params) => postAction('/admin/bank-exchange-rate',params);
 // Bank汇率详情
 const getBankRateListDetail = (params) => getAction(`/admin/bank-exchange-rate/pending-handle/${params}`);
-// API汇率更新
+// Bank汇率更新
 const getBankRateUpdate = (params) => postAction('/admin/bank-exchange-rate/pending-handle',params);
+// 汇率深度列表
+const exchangeRate = (params) => postAction('/admin/exchange-rate-spread-level/query',params);
+// 汇率深度详情
+const exchangeRateDetail = (params) => getAction(`/admin/exchange-rate-spread-level/${params}`)
 
 export {
+  exchangeRateDetail,
+  exchangeRate,
   getBankRateUpdate,
   getBankRateListDetail,
   getBankRateListUpdate,
