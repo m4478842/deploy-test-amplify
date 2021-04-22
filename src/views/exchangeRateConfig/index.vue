@@ -327,6 +327,7 @@ export default {
     handleOkASIC () {
       let params = JSON.parse(JSON.stringify(this.detailInfo))
       params.spreadLevels = this.coinTypeList
+      params.digits = params.digits===''?0:params.digits
       this.confirmLoadingASIC = true
       exchangeRateUpdate(params).then(res => {
         if (res.code === 200) {

@@ -279,6 +279,10 @@ export default {
     },
     // 保存编辑
     digitsMove (record) {
+      console.log(record)
+      record.digits = record.digits === '' ? 0 : record.digits
+      record.depositMargin = record.depositMargin === '' ? 0 : record.depositMargin
+      record.withdrawalMargin = record.withdrawalMargin === '' ? 0 : record.withdrawalMargin
       this.updateItem(record)
     },
     // 分页查询
