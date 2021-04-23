@@ -258,8 +258,20 @@ export default {
             res.data.forEach(item => {
               item.editIpt = false
             })
-            this.loadASICList = this.loadASICList.slice((this.pagination.current-1)*10)
             this.remarkList = JSON.parse(JSON.stringify(this.loadASICList))
+            this.loadASICList = []
+            let current = (this.pagination.current-1)*10
+            if (this.pagination.total%this.pagination.pageSize<(this.pagination.total-current)) {
+              for (let i=current;i<current+10;i++) {
+                this.loadASICList.push(JSON.parse(JSON.stringify(this.remarkList
+                [i])))
+              }
+            } else {
+              for (let i=current;i<current+this.pagination.total%this.pagination.pageSize;i++) {
+                this.loadASICList.push(JSON.parse(JSON.stringify(this.remarkList
+                [i])))
+              }
+            }
           } else {
             this.$message.error(res.msg)
           }
@@ -301,11 +313,13 @@ export default {
           let current = (this.pagination.current-1)*10
           if (this.pagination.total%this.pagination.pageSize<(this.pagination.total-current)) {
             for (let i=current;i<current+10;i++) {
-              this.loadASICList.push(this.remarkList[i])
+              this.loadASICList.push(JSON.parse(JSON.stringify(this.remarkList
+              [i])))
             }
           } else {
             for (let i=current;i<current+this.pagination.total%this.pagination.pageSize;i++) {
-              this.loadASICList.push(this.remarkList[i])
+              this.loadASICList.push(JSON.parse(JSON.stringify(this.remarkList
+              [i])))
             }
           }
         } else {
