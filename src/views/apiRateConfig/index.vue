@@ -279,16 +279,22 @@ export default {
     },
     // 保存编辑
     digitsMove (record) {
-      console.log(record)
-      record.digits = record.digits === '' ? 0 : record.digits
-      record.depositMargin = record.depositMargin === '' ? 0 : record.depositMargin
-      record.withdrawalMargin = record.withdrawalMargin === '' ? 0 : record.withdrawalMargin
       this.updateItem(record)
     },
     // 分页查询
     handleTableChange (pagination) {
       this.pagination.current = pagination.current
-      this.getASICData(this.searchForm)
+      this.loadASICList = []
+      let current = (this.pagination.current-1)*10
+      if (this.pagination.total%this.pagination.pageSize<(this.pagination.total-current)) {
+        for (let i=current;i<current+10;i++) {
+          this.loadASICList.push(this.remarkList[i])
+        }
+      } else {
+        for (let i=current;i<current+this.pagination.total%this.pagination.pageSize;i++) {
+          this.loadASICList.push(this.remarkList[i])
+        }
+      }
     },
     // 条件查询
     handleToSearchEnterprise (type) {
@@ -360,8 +366,18 @@ export default {
             item.editIpt = false
             item.editOpt = false
           })
-          this.loadASICList = res.data.slice((this.pagination.current-1)*10)
-          this.remarkList = JSON.parse(JSON.stringify(this.loadASICList))
+          this.remarkList = JSON.parse(JSON.stringify(res.data))
+          this.loadASICList = []
+          let current = (this.pagination.current-1)*10
+          if (this.pagination.total%this.pagination.pageSize<(this.pagination.total-current)) {
+            for (let i=current;i<current+10;i++) {
+              this.loadASICList.push(this.remarkList[i])
+            }
+          } else {
+            for (let i=current;i<current+this.pagination.total%this.pagination.pageSize;i++) {
+              this.loadASICList.push(this.remarkList[i])
+            }
+          }
         } else {
           this.$message.error(res.msg)
         }

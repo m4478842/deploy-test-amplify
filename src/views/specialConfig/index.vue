@@ -502,7 +502,8 @@ export default {
         },
         file: null
       },
-      formData: new FormData()
+      formData: new FormData(),
+      remarkList: []
     };
   },
   computed: {
@@ -589,6 +590,7 @@ export default {
     changeTag(key) {
       this.currentTag = key
       this.searchForm.name = undefined
+      this.pagination.current = 1
       if (this.currentTag == '1') {
         this.searchForm.regulator = 'ASIC'
       } else {
@@ -599,7 +601,31 @@ export default {
     // 分页查询
     handleTableChange (pagination) {
       this.pagination.current = pagination.current
-      this.getASICData(this.searchForm)
+      if (this.searchForm.regulator==='ASIC') {
+        this.loadASICList = []
+        let current = (this.pagination.current-1)*10
+        if (this.pagination.total%this.pagination.pageSize<(this.pagination.total-current)) {
+          for (let i=current;i<current+10;i++) {
+            this.loadASICList.push(this.remarkList[i])
+          }
+        } else {
+          for (let i=current;i<current+this.pagination.total%this.pagination.pageSize;i++) {
+            this.loadASICList.push(this.remarkList[i])
+          }
+        }
+      } else {
+        this.loadSTVList = []
+        let current = (this.pagination.current-1)*10
+        if (this.pagination.total%this.pagination.pageSize<(this.pagination.total-current)) {
+          for (let i=current;i<current+10;i++) {
+            this.loadSTVList.push(this.remarkList[i])
+          }
+        } else {
+          for (let i=current;i<current+this.pagination.total%this.pagination.pageSize;i++) {
+            this.loadSTVList.push(this.remarkList[i])
+          }
+        }
+      }
     },
     // 条件查询
     handleToSearchEnterprise (type) {
@@ -617,7 +643,18 @@ export default {
                 return value.name===this.searchForm.name
               })
               this.pagination.total = this.loadASICList.length
-              this.loadASICList = this.loadASICList.slice((this.pagination.current-1)*10)
+              this.remarkList = JSON.parse(JSON.stringify(this.loadASICList))
+              this.loadASICList = []
+              let current = (this.pagination.current-1)*10
+              if (this.pagination.total%this.pagination.pageSize<(this.pagination.total-current)) {
+                for (let i=current;i<current+10;i++) {
+                  this.loadASICList.push(this.remarkList[i])
+                }
+              } else {
+                for (let i=current;i<current+this.pagination.total%this.pagination.pageSize;i++) {
+                  this.loadASICList.push(this.remarkList[i])
+                }
+              }
             } else {
               this.$message.error(res.msg)
             }
@@ -638,7 +675,18 @@ export default {
                 return value.name===this.searchForm.name
               })
               this.pagination.total = this.loadSTVList.length
-              this.loadSTVList = this.loadSTVList.slice((this.pagination.current-1)*10)
+              this.remarkList = JSON.parse(JSON.stringify(this.loadSTVList))
+              this.loadSTVList = []
+              let current = (this.pagination.current-1)*10
+              if (this.pagination.total%this.pagination.pageSize<(this.pagination.total-current)) {
+                for (let i=current;i<current+10;i++) {
+                  this.loadSTVList.push(this.remarkList[i])
+                }
+              } else {
+                for (let i=current;i<current+this.pagination.total%this.pagination.pageSize;i++) {
+                  this.loadSTVList.push(this.remarkList[i])
+                }
+              }
             } else {
               this.$message.error(res.msg)
             }
@@ -673,10 +721,32 @@ export default {
         this.tableLoading = false
         if (res.code===200 && this.currentTag==='1') {
           this.pagination.total = res.data.length
-          this.loadASICList = res.data.slice((this.pagination.current-1)*10)
+          this.remarkList = JSON.parse(JSON.stringify(res.data))
+          this.loadASICList = []
+          let current = (this.pagination.current-1)*10
+          if (this.pagination.total%this.pagination.pageSize<(this.pagination.total-current)) {
+            for (let i=current;i<current+10;i++) {
+              this.loadASICList.push(this.remarkList[i])
+            }
+          } else {
+            for (let i=current;i<current+this.pagination.total%this.pagination.pageSize;i++) {
+              this.loadASICList.push(this.remarkList[i])
+            }
+          }
         } else if (res.code===200 && this.currentTag==='2') {
           this.pagination.total = res.data.length
-          this.loadSTVList = res.data.slice((this.pagination.current-1)*10)
+          this.remarkList = JSON.parse(JSON.stringify(res.data))
+          this.loadSTVList = []
+          let current = (this.pagination.current-1)*10
+          if (this.pagination.total%this.pagination.pageSize<(this.pagination.total-current)) {
+            for (let i=current;i<current+10;i++) {
+              this.loadSTVList.push(this.remarkList[i])
+            }
+          } else {
+            for (let i=current;i<current+this.pagination.total%this.pagination.pageSize;i++) {
+              this.loadSTVList.push(this.remarkList[i])
+            }
+          }
         } else {
           this.$message.error(res.msg)
         }
