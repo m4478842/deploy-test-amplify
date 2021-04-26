@@ -50,10 +50,13 @@ service.interceptors.request.use(config => {
   const token = Vue.ls.get(ACCESS_TOKEN)
   if (token) {
     config.headers[ 'X-Access-Token' ] = token // 让每个请求携带自定义 token 请根据实际情况自行修改
-
   }
   config.headers[ 'Access-Control-Allow-Origin' ] = 'https://18.167.144.15'
   config.headers[ 'Access-Control-Allow-Credentials' ] = 'true'
+  config.headers[ 'Access-Control-Max-Age' ] = '1800'
+  config.headers[ 'Access-Control-Allow-Methods' ] = 'GET,POST,PUT,POST'
+  config.headers[ 'Access-Control-Allow-Headers' ] = 'x-requested-with,content-type'
+ 
   if(config.method=='get'){
     if(config.url.indexOf("sys/dict/getDictItems")<0){
       config.params = {
