@@ -54,7 +54,7 @@ service.interceptors.request.use(config => {
   config.headers[ 'Access-Control-Allow-Origin' ] = 'https://18.167.144.15'
   config.headers[ 'Access-Control-Allow-Credentials' ] = 'true'
   config.headers[ 'Access-Control-Max-Age' ] = '1800'
-  config.headers[ 'Access-Control-Allow-Methods' ] = 'GET,POST,PUT,POST'
+  config.headers[ 'Access-Control-Allow-Methods' ] = 'GET,POST,PUT,DETELE'
   config.headers[ 'Access-Control-Allow-Headers' ] = 'x-requested-with,content-type'
  
   if(config.method=='get'){
