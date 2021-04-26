@@ -8,7 +8,7 @@ import { ACCESS_TOKEN } from "@/store/mutation-types"
 // 创建 axios 实例
 const service = axios.create({
   //baseURL: '/local', // 本地
-  baseURL: 'https://18.167.144.15', // 线上
+  baseURL: 'https://dev.ddmarketinghub.com', // 线上
   timeout: 9000 // 请求超时时间
 })
 
@@ -51,7 +51,7 @@ service.interceptors.request.use(config => {
   if (token) {
     config.headers[ 'X-Access-Token' ] = token // 让每个请求携带自定义 token 请根据实际情况自行修改
   }
-  config.headers[ 'Access-Control-Allow-Origin' ] = 'https://18.167.144.15'
+  config.headers[ 'Access-Control-Allow-Origin' ] = 'https://dev.ddmarketinghub.com'
   config.headers[ 'Access-Control-Allow-Credentials' ] = 'true'
   config.headers[ 'Access-Control-Max-Age' ] = '1800'
   config.headers[ 'Access-Control-Allow-Methods' ] = 'GET,POST,PUT,DETELE'
